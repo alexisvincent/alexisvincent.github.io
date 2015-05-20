@@ -2,21 +2,36 @@
 
 body {
     font-family: 'Open Sans', sans-serif;
-    font-size: 2em
+    font-size: 1em;
 }
 
 .one {
     margin-left: 10%;
-    text-align: left
+    text-align: left;
+    font-size: 1em;
+}
+
+.one > p > span {
+    font-size: 2em;
+    color: whitesmoke;
+    background-color: darkcyan;
 }
 
 .two {
-    text-align: center
-}
-
-.two > p {
+    text-align: center;
+    font-size: 2em;
 }
 
 .three {
     text-align: right
+}
+
+.links {
+    margin-top: 5%;
+    text-align: center;
+}
+
+.links > a > img {
+    height: 50px;
+    width: 50px;
 }
