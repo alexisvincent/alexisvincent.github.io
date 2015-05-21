@@ -26,6 +26,7 @@ body {
 
     padding-top: 50vh;
     transform: translate(0, -25%);
+    -webkit-transform: translate(0, -25%);
 }
 
 .bio {
@@ -75,7 +76,23 @@ body {
 }
 
 .contact {
-    /*height: 100vh;*/
+    height: 60vh;
+    text-align: center;
+    font-size: 3em;
+}
+
+.contact > a {
+    color: black;
+    text-decoration: none;
+}
+
+.contact > a > span {
+     color: #4A90E2;
+     text-decoration: none;
+ }
+
+.contact > div {
+    font-size: 0.8em;
 }
 
 .footer {
