@@ -25,7 +25,7 @@ gulpir(function (mix) {
 	mix.syncDir(gulpir.config.assetsDir + 'img', gulpir.config.publicDir + 'img');
 
 	//Copy SVG's
-	//mix.syncDir(gulpir.config.assetsDir + 'libs/Iconic/svg/smart', gulpir.config.publicDir + 'svg');
+	mix.syncDir(gulpir.config.assetsDir + 'libs/Iconic/svg/smart', gulpir.config.publicDir + 'svg');
 
 	//Compile Styles
 	mix.sass(gulpir.config.projectName + '.scss');
@@ -41,5 +41,5 @@ gulpir(function (mix) {
 	}, watch);
 
 	//Libs JS
-	mix.scripts(['libs/googleAnalytics.js'], gulpir.config.jsOutput + "/" + gulpir.config.projectName + '.libs.min.js')
+	mix.scripts(['libs/googleAnalytics.js', 'libs/iconic.min.js'], gulpir.config.jsOutput + "/" + gulpir.config.projectName + '.libs.min.js')
 });

@@ -39,9 +39,11 @@ body {
   body .links {
     margin-top: 10vh;
     text-align: center; }
-    body .links a img {
-      height: 50px;
-      width: 50px; }
+    body .links a {
+      margin: 5px; }
+      body .links a svg {
+        height: 50px;
+        width: 50px; }
   body .contact {
     height: 60vh;
     text-align: center;
