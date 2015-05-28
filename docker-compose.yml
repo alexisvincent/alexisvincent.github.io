@@ -3,4 +3,4 @@ web:
   ports:
      - "80:80"
   volumes:
-     - build:/data/www
+     - ./:/data/www

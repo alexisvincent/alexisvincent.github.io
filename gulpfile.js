@@ -19,7 +19,7 @@ var watch = false;
 
 gulpir(function (mix) {
 	//Copy Index File
-	mix.syncFile(gulpir.config.assetsDir + 'index.html', gulpir.config.publicDir);
+	mix.syncFile(gulpir.config.assetsDir + 'index.html', './');
 
 	//Copy Images
 	mix.syncDir(gulpir.config.assetsDir + 'img', gulpir.config.publicDir + 'img');
