@@ -6,11 +6,11 @@
 var gulpir = require('gulpir');
 
 gulpir.config.projectName = "alexisvincent";
-gulpir.config.srcDir = "/";
+gulpir.config.srcDir = "./";
 gulpir.config.assetsDir = "src/";
-gulpir.config.publicDir = "build/";
-gulpir.config.cssOutput = "build/css";
-gulpir.config.jsOutput = "build/js";
+gulpir.config.publicDir = "./";
+gulpir.config.cssOutput = "./css";
+gulpir.config.jsOutput = "./js";
 gulpir.config.sourcemaps = true;
 gulpir.config.autoprefix = true;
 gulpir.config.watchers = {"default": {}};
