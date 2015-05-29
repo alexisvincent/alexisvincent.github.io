@@ -83,14 +83,26 @@ body {
     @media (max-width: 600px) {
       body .contact {
         font-size: 0.7em; } }
-    body .contact a {
-      font-size: 3em;
-      color: black;
-      text-decoration: none; }
-      body .contact a span {
-        color: #4A90E2;
-        text-decoration: none; }
     body .contact div {
-      font-size: 2em; }
+      font-size: 1.7em;
+      display: -webkit-flex;
+      display: -ms-flexbox;
+      display: flex;
+      -webkit-justify-content: center;
+          -ms-flex-pack: center;
+              justify-content: center;
+      -webkit-flex-direction: column;
+          -ms-flex-direction: column;
+              flex-direction: column;
+      -webkit-align-items: center;
+          -ms-flex-align: center;
+              align-items: center; }
+      body .contact div a {
+        font-size: 2em;
+        color: black;
+        text-decoration: none; }
+        body .contact div a span {
+          color: #4A90E2;
+          text-decoration: none; }
 
 /*# sourceMappingURL=alexisvincent.css.map */
