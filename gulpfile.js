@@ -6,9 +6,9 @@
 var gulpir = require('gulpir');
 
 gulpir.config.projectName = "alexisvincent";
-gulpir.config.srcDir = "./";
+gulpir.config.srcDir = ".";
 gulpir.config.assetsDir = "src/";
-gulpir.config.publicDir = "./";
+gulpir.config.publicDir = ".";
 gulpir.config.cssOutput = "./css";
 gulpir.config.jsOutput = "./js";
 gulpir.config.sourcemaps = true;
@@ -19,13 +19,13 @@ var watch = false;
 
 gulpir(function (mix) {
 	//Copy Index File
-	mix.syncFile(gulpir.config.assetsDir + 'index.html', './');
+	mix.syncFile(gulpir.config.assetsDir + 'index.html', gulpir.config.publicDir);
 
 	//Copy Images
-	mix.syncDir(gulpir.config.assetsDir + 'img', gulpir.config.publicDir + 'img');
+	mix.syncDir(gulpir.config.assetsDir + 'img', gulpir.config.publicDir + '/img');
 
 	//Copy SVG's
-	mix.syncDir(gulpir.config.assetsDir + 'libs/Iconic/svg/smart', gulpir.config.publicDir + 'svg');
+	mix.syncDir(gulpir.config.assetsDir + 'libs/Iconic/svg/smart', gulpir.config.publicDir + '/svg');
 
 	//Compile Styles
 	mix.sass(gulpir.config.projectName + '.scss');
@@ -36,7 +36,7 @@ gulpir(function (mix) {
 		output: {
 			filename: gulpir.config.projectName + '.app.min.js',
 			path: gulpir.config.jsOutput + "/",
-			publicPath: './'
+			publicPath: gulpir.config.publicDir
 		}
 	}, watch);
 
