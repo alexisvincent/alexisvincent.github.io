@@ -2,6 +2,7 @@
 body {
   font-family: 'Lato', sans-serif;
   font-size: 1em;
+  font-weight: 300;
   background: #f3f3f3; }
   body .splash {
     height: 100vh;
@@ -66,7 +67,7 @@ body {
           height: 50px;
           width: 50px; }
   body .contact {
-    height: 90vh;
+    height: 100vh;
     display: -webkit-flex;
     display: -ms-flexbox;
     display: flex;
