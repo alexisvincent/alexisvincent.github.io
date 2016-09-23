@@ -1,0 +1,27 @@
+baseurl = "https://alexisvincent.io"
+languageCode = "en"
+title = "alexisvincent.io"
+theme = "hemingway"
+copyright = "&copy; <a href=\"https://github.com/alexisvincent\">Alexis Vincent</a> 2016"
+disqusShortname = "shortname"
+googleAnalytics = ""
+publishdir = "../"
+
+[params]
+
+[params.highlight]
+style = "github"
+languages = ["go", "dockerfile"]
+
+[[params.social]]
+url = "https://github.com/alexisvincent"
+fa_icon = "fa-github"
+
+[[params.social]]
+url = "https://twitter.com/vincent_alexis"
+fa_icon = "fa-twitter"
+
+[[params.social]]
+url = "/index.xml"
+fa_icon = "fa-rss"
+
