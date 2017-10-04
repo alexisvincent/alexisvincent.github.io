@@ -28,4 +28,4 @@ and the consequences of my claim
 3. The student learns very little, consequently this is very very slow and very very unstable.
 
 Represented as a graph this looks as follows
-![alt text](/assume-less-when-teaching_01.jpg)
+![alt text](/images/assume-less-when-teaching_01.jpg)

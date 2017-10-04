@@ -2,22 +2,22 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>alexisvincent.io</title>
-    <link>https://alexisvincent.io/</link>
+    <link>http://alexisvincent.io/</link>
     <description>Recent content on alexisvincent.io</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
-    <copyright>&amp;copy; &lt;a href=&#34;https://github.com/alexisvincent&#34;&gt;Alexis Vincent&lt;/a&gt; 2017</copyright>
+    <copyright>&amp;copy; &lt;a href=&#34;http://github.com/alexisvincent&#34;&gt;Alexis Vincent&lt;/a&gt; 2017</copyright>
     <lastBuildDate>Wed, 04 Oct 2017 15:32:25 +0200</lastBuildDate>
     
-	<atom:link href="https://alexisvincent.io/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="http://alexisvincent.io/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>React Loopback Pattern</title>
-      <link>https://alexisvincent.io/blog/loopback-pattern/</link>
+      <link>http://alexisvincent.io/blog/loopback-pattern/</link>
       <pubDate>Wed, 04 Oct 2017 15:32:25 +0200</pubDate>
       
-      <guid>https://alexisvincent.io/blog/loopback-pattern/</guid>
+      <guid>http://alexisvincent.io/blog/loopback-pattern/</guid>
       <description>I recently implemented a neat react pattern for creating dumb components in situations where it would normally be easier to allow the component to contain internal state.
 I am not claiming this is going to revolutionize anything, it&amp;rsquo;s just a very simple idea (that people are probably already doing) that might make some stuff simpler for anyone who has not seen it yet
 Definition The loopback pattern is an extention of the &amp;ldquo;smart/dumb&amp;rdquo; component pattern, where dumb components accept two props data and the loopback function.</description>
@@ -25,10 +25,10 @@ Definition The loopback pattern is an extention of the &amp;ldquo;smart/dumb&amp
     
     <item>
       <title>Assume less when teaching</title>
-      <link>https://alexisvincent.io/blog/assume-less-when-teaching/</link>
+      <link>http://alexisvincent.io/blog/assume-less-when-teaching/</link>
       <pubDate>Fri, 23 Sep 2016 23:14:25 +0200</pubDate>
       
-      <guid>https://alexisvincent.io/blog/assume-less-when-teaching/</guid>
+      <guid>http://alexisvincent.io/blog/assume-less-when-teaching/</guid>
       <description>I had an simple realisation while in a lecture the other day and I thought it interesting enough to share, despite it being a simple idea. The observation is as follows: there is an inverse correspondence between the assumptions a lecturer makes about what their student understands, and the speed and &amp;lsquo;stability&amp;rsquo; with which a student can learn new ideas. Note this primarily applies to learning ideas that require understanding, not necessarily just memory.</description>
     </item>
     

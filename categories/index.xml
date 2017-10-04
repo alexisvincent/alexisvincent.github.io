@@ -2,13 +2,13 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Categories on alexisvincent.io</title>
-    <link>https://alexisvincent.io/categories/</link>
+    <link>http://alexisvincent.io/categories/</link>
     <description>Recent content in Categories on alexisvincent.io</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
-    <copyright>&amp;copy; &lt;a href=&#34;https://github.com/alexisvincent&#34;&gt;Alexis Vincent&lt;/a&gt; 2017</copyright>
+    <copyright>&amp;copy; &lt;a href=&#34;http://github.com/alexisvincent&#34;&gt;Alexis Vincent&lt;/a&gt; 2017</copyright>
     
-	<atom:link href="https://alexisvincent.io/categories/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="http://alexisvincent.io/categories/index.xml" rel="self" type="application/rss+xml" />
     
     
   </channel>
