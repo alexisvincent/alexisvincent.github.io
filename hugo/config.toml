@@ -2,8 +2,8 @@ baseurl = "https://alexisvincent.io"
 languageCode = "en"
 title = "alexisvincent.io"
 theme = "hemingway"
-copyright = "&copy; <a href=\"https://github.com/alexisvincent\">Alexis Vincent</a> 2016"
-disqusShortname = "shortname"
+copyright = "&copy; <a href=\"https://github.com/alexisvincent\">Alexis Vincent</a> 2017"
+disqusShortname = "alexisjohnvincent"
 googleAnalytics = ""
 publishdir = "../"
 
@@ -11,7 +11,7 @@ publishdir = "../"
 
 [params.highlight]
 style = "github"
-languages = ["go", "dockerfile"]
+languages = ["go", "dockerfile", "javascript"]
 
 [[params.social]]
 url = "https://github.com/alexisvincent"
