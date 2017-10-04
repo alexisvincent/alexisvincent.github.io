@@ -60,7 +60,7 @@ class App extends React.Component {
         this.setState(suggestedState)
     }
 
-    return (<SillyListComponent state={this.state} loopback={suggestedState} />)
+    return (<SillyListComponent state={this.state} loopback={listLoopback} />)
 }
 ```
 
