@@ -1,1 +1,0 @@
-{:rename-macros {}, :renames {}, :externs {console {log {}}}, :use-macros {}, :excludes #{}, :name client.core, :imports nil, :requires nil, :cljs.spec/speced-vars [], :uses nil, :cljs.spec/registry-ref [], :require-macros nil, :cljs.analyzer/constants {:seen #{:keyword}, :order [:keyword]}, :doc nil}
