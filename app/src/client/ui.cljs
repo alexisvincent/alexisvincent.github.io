@@ -47,7 +47,7 @@
 				 :handler (fn [{x "last"}]
 										(reset! foreign-price x)))
 
-		(GET "https://cors-anywhere.herokuapp.com/https://api.fixer.io/latest?base=USD"
+		(GET "https://api.fixer.io/latest?base=USD"
 				 :handler (fn [{{zar "ZAR"} "rates"}]
 										(reset! forex-rate zar)))
 
