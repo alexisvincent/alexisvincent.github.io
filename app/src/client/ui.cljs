@@ -37,20 +37,31 @@
 
         initial-amount (r/atom 10000)
         forex-rate (r/atom 13.59)
-        foreign-price (r/atom 16000)]
+        foreign-price (r/atom 16000)
+
+				reset-luno #(GET "https://cors-cpivrgrkxw.now.sh/https://api.mybitx.com/api/1/ticker?pair=XBTZAR"
+								:handler (fn [{x "last_trade"}]
+													 (reset! luno-price x)))
+
+				reset-foreign 		#(GET "https://cors-cpivrgrkxw.now.sh/https://www.bitstamp.net/api/v2/ticker/btcusd/"
+															:handler (fn [{x "last"}]
+																				 (reset! foreign-price x)))
+				reset-forex #(GET "https://cors-cpivrgrkxw.now.sh/https://api.fixer.io/latest?base=USD"
+												 :handler (fn [{{zar "ZAR"} "rates"}]
+																		(reset! forex-rate zar)))
+				]
+
+		(reset-luno)
+		(reset-foreign)
+		(reset-forex)
 
 		(js/setInterval
-		 #(GET "https://cors-anywhere.herokuapp.com/https://api.mybitx.com/api/1/ticker?pair=XBTZAR"
-					:handler (fn [{x "last_trade"}]
-										 (reset! luno-price x))) 10000)
+		 reset-luno
+		  10000)
 
-		(js/setInterval 		#(GET "https://cors-anywhere.herokuapp.com/https://www.bitstamp.net/api/v2/ticker/btcusd/"
-														 :handler (fn [{x "last"}]
-																				(reset! foreign-price x))) 5000)
+		(js/setInterval reset-foreign 5000)
 
-		(js/setInterval 		#(GET "https://api.fixer.io/latest?base=USD"
-														 :handler (fn [{{zar "ZAR"} "rates"}]
-																				(reset! forex-rate zar))) 5000)
+		(js/setInterval 	reset-forex	5000)
 
     (fn []
       (let [forex-amount (/ @initial-amount @forex-rate)
