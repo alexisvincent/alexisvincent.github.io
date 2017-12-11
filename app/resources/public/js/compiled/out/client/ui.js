@@ -10,34 +10,46 @@ var luno_price = reagent.core.atom.call(null,(250000));
 var initial_amount = reagent.core.atom.call(null,(10000));
 var forex_rate = reagent.core.atom.call(null,13.59);
 var foreign_price = reagent.core.atom.call(null,(16000));
-ajax.core.GET.call(null,"https://cors-anywhere.herokuapp.com/https://api.mybitx.com/api/1/ticker?pair=XBTZAR",new cljs.core.Keyword(null,"handler","handler",-195596612),((function (luno_price,initial_amount,forex_rate,foreign_price){
-return (function (p__57088){
-var map__57089 = p__57088;
-var map__57089__$1 = ((((!((map__57089 == null)))?((((map__57089.cljs$lang$protocol_mask$partition0$ & (64))) || ((cljs.core.PROTOCOL_SENTINEL === map__57089.cljs$core$ISeq$)))?true:false):false))?cljs.core.apply.call(null,cljs.core.hash_map,map__57089):map__57089);
-var x = cljs.core.get.call(null,map__57089__$1,"last_trade");
+setInterval(((function (luno_price,initial_amount,forex_rate,foreign_price){
+return (function (){
+return ajax.core.GET.call(null,"https://cors-anywhere.herokuapp.com/https://api.mybitx.com/api/1/ticker?pair=XBTZAR",new cljs.core.Keyword(null,"handler","handler",-195596612),((function (luno_price,initial_amount,forex_rate,foreign_price){
+return (function (p__57184){
+var map__57185 = p__57184;
+var map__57185__$1 = ((((!((map__57185 == null)))?((((map__57185.cljs$lang$protocol_mask$partition0$ & (64))) || ((cljs.core.PROTOCOL_SENTINEL === map__57185.cljs$core$ISeq$)))?true:false):false))?cljs.core.apply.call(null,cljs.core.hash_map,map__57185):map__57185);
+var x = cljs.core.get.call(null,map__57185__$1,"last_trade");
 return cljs.core.reset_BANG_.call(null,luno_price,x);
 });})(luno_price,initial_amount,forex_rate,foreign_price))
 );
+});})(luno_price,initial_amount,forex_rate,foreign_price))
+,(10000));
 
-ajax.core.GET.call(null,"https://cors-anywhere.herokuapp.com/https://www.bitstamp.net/api/v2/ticker/btcusd/",new cljs.core.Keyword(null,"handler","handler",-195596612),((function (luno_price,initial_amount,forex_rate,foreign_price){
-return (function (p__57091){
-var map__57092 = p__57091;
-var map__57092__$1 = ((((!((map__57092 == null)))?((((map__57092.cljs$lang$protocol_mask$partition0$ & (64))) || ((cljs.core.PROTOCOL_SENTINEL === map__57092.cljs$core$ISeq$)))?true:false):false))?cljs.core.apply.call(null,cljs.core.hash_map,map__57092):map__57092);
-var x = cljs.core.get.call(null,map__57092__$1,"last");
+setInterval(((function (luno_price,initial_amount,forex_rate,foreign_price){
+return (function (){
+return ajax.core.GET.call(null,"https://cors-anywhere.herokuapp.com/https://www.bitstamp.net/api/v2/ticker/btcusd/",new cljs.core.Keyword(null,"handler","handler",-195596612),((function (luno_price,initial_amount,forex_rate,foreign_price){
+return (function (p__57187){
+var map__57188 = p__57187;
+var map__57188__$1 = ((((!((map__57188 == null)))?((((map__57188.cljs$lang$protocol_mask$partition0$ & (64))) || ((cljs.core.PROTOCOL_SENTINEL === map__57188.cljs$core$ISeq$)))?true:false):false))?cljs.core.apply.call(null,cljs.core.hash_map,map__57188):map__57188);
+var x = cljs.core.get.call(null,map__57188__$1,"last");
 return cljs.core.reset_BANG_.call(null,foreign_price,x);
 });})(luno_price,initial_amount,forex_rate,foreign_price))
 );
+});})(luno_price,initial_amount,forex_rate,foreign_price))
+,(5000));
 
-ajax.core.GET.call(null,"https://api.fixer.io/latest?base=USD",new cljs.core.Keyword(null,"handler","handler",-195596612),((function (luno_price,initial_amount,forex_rate,foreign_price){
-return (function (p__57094){
-var map__57095 = p__57094;
-var map__57095__$1 = ((((!((map__57095 == null)))?((((map__57095.cljs$lang$protocol_mask$partition0$ & (64))) || ((cljs.core.PROTOCOL_SENTINEL === map__57095.cljs$core$ISeq$)))?true:false):false))?cljs.core.apply.call(null,cljs.core.hash_map,map__57095):map__57095);
-var map__57096 = cljs.core.get.call(null,map__57095__$1,"rates");
-var map__57096__$1 = ((((!((map__57096 == null)))?((((map__57096.cljs$lang$protocol_mask$partition0$ & (64))) || ((cljs.core.PROTOCOL_SENTINEL === map__57096.cljs$core$ISeq$)))?true:false):false))?cljs.core.apply.call(null,cljs.core.hash_map,map__57096):map__57096);
-var zar = cljs.core.get.call(null,map__57096__$1,"ZAR");
+setInterval(((function (luno_price,initial_amount,forex_rate,foreign_price){
+return (function (){
+return ajax.core.GET.call(null,"https://api.fixer.io/latest?base=USD",new cljs.core.Keyword(null,"handler","handler",-195596612),((function (luno_price,initial_amount,forex_rate,foreign_price){
+return (function (p__57190){
+var map__57191 = p__57190;
+var map__57191__$1 = ((((!((map__57191 == null)))?((((map__57191.cljs$lang$protocol_mask$partition0$ & (64))) || ((cljs.core.PROTOCOL_SENTINEL === map__57191.cljs$core$ISeq$)))?true:false):false))?cljs.core.apply.call(null,cljs.core.hash_map,map__57191):map__57191);
+var map__57192 = cljs.core.get.call(null,map__57191__$1,"rates");
+var map__57192__$1 = ((((!((map__57192 == null)))?((((map__57192.cljs$lang$protocol_mask$partition0$ & (64))) || ((cljs.core.PROTOCOL_SENTINEL === map__57192.cljs$core$ISeq$)))?true:false):false))?cljs.core.apply.call(null,cljs.core.hash_map,map__57192):map__57192);
+var zar = cljs.core.get.call(null,map__57192__$1,"ZAR");
 return cljs.core.reset_BANG_.call(null,forex_rate,zar);
 });})(luno_price,initial_amount,forex_rate,foreign_price))
 );
+});})(luno_price,initial_amount,forex_rate,foreign_price))
+,(5000));
 
 return ((function (luno_price,initial_amount,forex_rate,foreign_price){
 return (function (){
@@ -46,20 +58,20 @@ var foreign_bitcoins = (forex_amount / cljs.core.deref.call(null,foreign_price))
 var final_amount = (foreign_bitcoins * cljs.core.deref.call(null,luno_price));
 var arbitrage_percentage = (((100) * (final_amount / cljs.core.deref.call(null,initial_amount))) - (100));
 return new cljs.core.PersistentVector(null, 12, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"div","div",1057191632),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"div","div",1057191632),"Local Exchange Price"], null),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"input","input",556931961),new cljs.core.PersistentArrayMap(null, 3, [new cljs.core.Keyword(null,"type","type",1174270348),"text",new cljs.core.Keyword(null,"value","value",305978217),cljs.core.deref.call(null,luno_price),new cljs.core.Keyword(null,"on-change","on-change",-732046149),((function (forex_amount,foreign_bitcoins,final_amount,arbitrage_percentage,luno_price,initial_amount,forex_rate,foreign_price){
-return (function (p1__57085_SHARP_){
-return cljs.core.reset_BANG_.call(null,luno_price,p1__57085_SHARP_.target.value);
+return (function (p1__57181_SHARP_){
+return cljs.core.reset_BANG_.call(null,luno_price,p1__57181_SHARP_.target.value);
 });})(forex_amount,foreign_bitcoins,final_amount,arbitrage_percentage,luno_price,initial_amount,forex_rate,foreign_price))
 ], null)], null),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"div","div",1057191632),"Foreign Exchange Price"], null),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"input","input",556931961),new cljs.core.PersistentArrayMap(null, 3, [new cljs.core.Keyword(null,"type","type",1174270348),"text",new cljs.core.Keyword(null,"value","value",305978217),cljs.core.deref.call(null,foreign_price),new cljs.core.Keyword(null,"on-change","on-change",-732046149),((function (forex_amount,foreign_bitcoins,final_amount,arbitrage_percentage,luno_price,initial_amount,forex_rate,foreign_price){
-return (function (p1__57086_SHARP_){
-return cljs.core.reset_BANG_.call(null,foreign_price,p1__57086_SHARP_.target.value);
+return (function (p1__57182_SHARP_){
+return cljs.core.reset_BANG_.call(null,foreign_price,p1__57182_SHARP_.target.value);
 });})(forex_amount,foreign_bitcoins,final_amount,arbitrage_percentage,luno_price,initial_amount,forex_rate,foreign_price))
 ], null)], null),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"div","div",1057191632),"Rands per Foreign Currency"], null),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"input","input",556931961),new cljs.core.PersistentArrayMap(null, 3, [new cljs.core.Keyword(null,"type","type",1174270348),"text",new cljs.core.Keyword(null,"value","value",305978217),cljs.core.deref.call(null,forex_rate),new cljs.core.Keyword(null,"on-change","on-change",-732046149),((function (forex_amount,foreign_bitcoins,final_amount,arbitrage_percentage,luno_price,initial_amount,forex_rate,foreign_price){
-return (function (p1__57087_SHARP_){
-return cljs.core.reset_BANG_.call(null,forex_rate,p1__57087_SHARP_.target.value);
+return (function (p1__57183_SHARP_){
+return cljs.core.reset_BANG_.call(null,forex_rate,p1__57183_SHARP_.target.value);
 });})(forex_amount,foreign_bitcoins,final_amount,arbitrage_percentage,luno_price,initial_amount,forex_rate,foreign_price))
 ], null)], null),new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"div","div",1057191632),"initial amount ",cljs.core.deref.call(null,initial_amount)], null),new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"div","div",1057191632),"after forex ",forex_amount], null),new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"div","div",1057191632),"foreign bitcoins ",foreign_bitcoins], null),new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"div","div",1057191632),"final amount ",final_amount], null),new cljs.core.PersistentVector(null, 4, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"div","div",1057191632),"arbitrage percentage ",arbitrage_percentage,"%"], null)], null);
 });
 ;})(luno_price,initial_amount,forex_rate,foreign_price))
 });
 
-//# sourceMappingURL=ui.js.map?rel=1513010474718
+//# sourceMappingURL=ui.js.map?rel=1513011230704

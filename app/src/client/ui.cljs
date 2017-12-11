@@ -39,17 +39,18 @@
         forex-rate (r/atom 13.59)
         foreign-price (r/atom 16000)]
 
-		(GET "https://cors-anywhere.herokuapp.com/https://api.mybitx.com/api/1/ticker?pair=XBTZAR"
-				 :handler (fn [{x "last_trade"}]
-										(reset! luno-price x)))
+		(js/setInterval
+		 #(GET "https://cors-anywhere.herokuapp.com/https://api.mybitx.com/api/1/ticker?pair=XBTZAR"
+					:handler (fn [{x "last_trade"}]
+										 (reset! luno-price x))) 10000)
 
-		(GET "https://cors-anywhere.herokuapp.com/https://www.bitstamp.net/api/v2/ticker/btcusd/"
-				 :handler (fn [{x "last"}]
-										(reset! foreign-price x)))
+		(js/setInterval 		#(GET "https://cors-anywhere.herokuapp.com/https://www.bitstamp.net/api/v2/ticker/btcusd/"
+														 :handler (fn [{x "last"}]
+																				(reset! foreign-price x))) 5000)
 
-		(GET "https://api.fixer.io/latest?base=USD"
-				 :handler (fn [{{zar "ZAR"} "rates"}]
-										(reset! forex-rate zar)))
+		(js/setInterval 		#(GET "https://api.fixer.io/latest?base=USD"
+														 :handler (fn [{{zar "ZAR"} "rates"}]
+																				(reset! forex-rate zar))) 5000)
 
     (fn []
       (let [forex-amount (/ @initial-amount @forex-rate)
