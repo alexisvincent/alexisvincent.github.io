@@ -11,6 +11,7 @@
                  [org.clojure/core.async  "0.3.443"]
 								 [org.roman01la/cljss "1.5.11"]
 								 [datascript "0.16.2"]
+								 [cljs-ajax "0.7.3"]
 								 [reagent "0.8.0-alpha2"]
 								 ]
 
