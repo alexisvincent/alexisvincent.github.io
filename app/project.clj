@@ -7,12 +7,13 @@
   :min-lein-version "2.7.1"
 
   :dependencies [[org.clojure/clojure "1.9.0"]
-                 [org.clojure/clojurescript "1.9.908"]
+                 [org.clojure/clojurescript "1.9.946"]
                  [org.clojure/core.async  "0.3.443"]
 								 [org.roman01la/cljss "1.5.11"]
-								 [datascript "0.16.2"]
+								 ;; [datascript "0.16.2"]
 								 [cljs-ajax "0.7.3"]
-								 [reagent "0.8.0-alpha2"]
+								 ;; [reagent "0.8.0-alpha2"]
+								 [rum "0.10.8"]
 								 ]
 
   :plugins [[lein-figwheel "0.5.13"]

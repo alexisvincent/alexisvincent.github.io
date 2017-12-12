@@ -1,10 +1,15 @@
 (ns client.core
   (:require [client.ui :as ui]
-						[client.data :as data]
-						[reagent.core :as r]))
+						[rum.core :as rum]
+						;; [reagent.core :as r]
+						))
+
 
 (enable-console-print!)
 
+(rum/defc repeat-label [n text]
+  [:div (repeat n [:.label text])])
 
+(rum/mount (ui/root) (js/document.getElementById "app"))
 
-(r/render [ui/root] (.getElementById js/document "app"))
+;; (r/render [ui/root] (.getElementById js/document "app"))
