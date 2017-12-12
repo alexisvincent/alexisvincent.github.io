@@ -4,34 +4,6 @@
 						[ajax.core :refer [GET POST]]
             [datascript.core :as d]))
 
-;; (defn root []
-;;   (let [people (data/reactive-q
-;;                 '[:find ?m ?m-title
-;;                   :where
-;;                   [?m :title ?m-title]
-;; 									[?m :type :milestone]
-;; 									;; [?i :milestone ?m]
-;; 									;; [?i :title ?i-title]
-;; 									])]
-;;     (fn []
-;; 			(.log js/console "asd" @people)
-;;       [:h1 "Milestones"
-;;        [:div
-;;         (comment (for [[m] @people]
-;; 									 [:div {:key i} "Milestone " m-title " issue " i-title]))]])))
-
-;; (defn root []
-;;   (let [people (data/reactive-q
-;;                 '[:find ?m ?name
-;;                   :where
-;;                   [?m :name ?name]
-;; 									])]
-;;     (fn []
-;;       [:h1 "People"
-;;        [:div
-;; 				(for [[i name] @people]
-;; 					[:div {:key i} "Name " name])]])))
-
 (defn root []
   (let [luno-price (r/atom 250000)
 

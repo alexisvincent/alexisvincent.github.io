@@ -45,6 +45,7 @@
                 :source-paths ["src"]
                 :compiler {:output-to "resources/public/js/compiled/client.js"
                            :main client.core
+													 :parallel-build true
                            :optimizations :advanced
                            :pretty-print false}}]}
 

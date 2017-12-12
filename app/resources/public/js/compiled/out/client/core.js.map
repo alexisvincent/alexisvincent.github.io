@@ -1,1 +1,0 @@
-{"version":3,"file":"\/Users\/alexisvincent\/Code\/alexisvincent.github.io\/app\/resources\/public\/js\/compiled\/out\/client\/core.js","sources":["core.cljs?rel=1513013124293"],"lineCount":10,"mappings":";AAAA;;;;;AAKA,AAACA;AAED,8BAAA,9BAACC,iHAAUC,uBAAS,wBAAA,xBAAiBC","names":["cljs.core\/enable-console-print!","reagent.core\/render","client.ui\/root","js\/document"]}
