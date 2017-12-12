@@ -4,7 +4,6 @@
 						;; [reagent.core :as r]
 						))
 
-
 (enable-console-print!)
 
 (rum/defc repeat-label [n text]

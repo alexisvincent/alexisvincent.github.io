@@ -1,16 +1,11 @@
 (ns client.ui
-  (:require ;;[reagent.core :as r]
-						;; [cljss.core :refer [defstyles]]
-   [cljs.core.async :as async :refer [<! >!]]
+  (:require
+   [cljs.core.async :as async :refer [<! >! chan] :refer-macros [go]]
    [rum.core :as rum]
+   [ajax.core :refer [GET]]
+	 [cljs.spec.alpha :as s]
+	 [cljss.core :as cljss :refer-macros [defstyles]]))
 
-   [ajax.core :refer [GET]]))
-
-;; (let [c (async/chan)]
-;; 	(async/go
-;; 		(async/>! c "lol"))
-;; 	(async/go
-;; 		(js/console.log (async/<! c))))
 
 (defn bypass-cors [url]
   (str "https://cors-cpivrgrkxw.now.sh/" url))
@@ -37,28 +32,23 @@
     :handler (fn [{{zar "ZAR"} "rates"}]
                (reset! forex-rate zar))))
 
-
-;; ;; (js/setInterval
-;; ;;  reset-luno
-;; ;;  10000)
-
-;; ;; (js/setInterval reset-foreign 5000)
-
-;; ;; (js/setInterval 	reset-forex	5000)
+(defstyles s-flex []
+  {:display "flex"
+	 :flex-direction "row"})
 
 (rum/defc bound-input < rum/reactive [atom']
-  [:input {:type "text" :value (rum/react atom') :on-change #(reset! atom' (get-value-from-input-event %))}])
+  [:input { :type "text" :value (rum/react atom') :on-change #(reset! atom' (get-value-from-input-event %))}])
 
 (defn connected-input [label atom' update-fn]
-	[:div
-	 [:div label]
-	 (bound-input atom')
-	 [:button {:on-click update-fn} "update"]])
+  [:div {:class [(s-flex)]}
+   [:div label]
+   (bound-input atom')
+   [:button {:on-click update-fn} "update"]])
 
 (defn refresh-all []
-	(update-luno)
-	(update-foreign)
-	(update-forex))
+  (update-luno)
+  (update-foreign)
+  (update-forex))
 
 (refresh-all)
 
@@ -69,12 +59,14 @@
         arbitrage-percentage (- (* 100 (/ final-amount (rum/react initial-amount))) 100)]
     [:div
 
-		 (connected-input "Luno Price" luno-price update-luno)
-		 (connected-input "Forex Rate" forex-rate update-forex)
-		 (connected-input "Foreign Exchange Price" foreign-price update-foreign)
+     (connected-input "Initial Amount" initial-amount #())
+     (connected-input "Luno Price" luno-price update-luno)
+     (connected-input "Forex Rate" forex-rate update-forex)
+     (connected-input "Foreign Exchange Price" foreign-price update-foreign)
 
      [:div "initial amount " (rum/react initial-amount)]
      [:div "after forex " forex-amount]
      [:div "foreign bitcoins " foreign-bitcoins]
      [:div "final amount " final-amount]
-     [:div "arbitrage percentage " arbitrage-percentage "%"]]))
+     [:div "arbitrage percentage " [:h1 arbitrage-percentage "%"]]
+		 [:button {:on-click refresh-all} "refresh all"]]))

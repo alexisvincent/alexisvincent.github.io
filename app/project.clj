@@ -8,8 +8,8 @@
 
   :dependencies [[org.clojure/clojure "1.9.0"]
                  [org.clojure/clojurescript "1.9.946"]
-                 [org.clojure/core.async  "0.3.443"]
-								 [org.roman01la/cljss "1.5.11"]
+                 [org.clojure/core.async  "0.3.465"]
+								 [org.roman01la/cljss "1.4.0"]
 								 ;; [datascript "0.16.2"]
 								 [cljs-ajax "0.7.3"]
 								 ;; [reagent "0.8.0-alpha2"]
@@ -27,8 +27,7 @@
 
                 ;; The presence of a :figwheel configuration here
                 ;; will cause figwheel to inject the figwheel client into the build
-                :figwheel {:on-jsload "client.core/on-js-reload"
-                           :open-urls ["http://localhost:3449/"]}
+                :figwheel {:on-jsload "client.core/on-js-reload"}
 
                 :compiler {:main client.core
                            :asset-path "js/compiled/out"
