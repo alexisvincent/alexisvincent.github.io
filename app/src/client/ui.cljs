@@ -3,9 +3,9 @@
    [cljs.core.async :as async :refer [<! >! chan] :refer-macros [go]]
    [rum.core :as rum]
    [ajax.core :refer [GET]]
-	 [cljs.spec.alpha :as s]
-	 [cljss.core :as cljss :refer-macros [defstyles]]))
-
+   [cljs.spec.alpha :as s]
+   ;; [cljss.core :as cljss :refer-macros [defstyles]]
+	 ))
 
 (defn bypass-cors [url]
   (str "https://cors-cpivrgrkxw.now.sh/" url))
@@ -13,60 +13,93 @@
 (defn get-value-from-input-event [e]
   (-> e .-target .-value))
 
-(def luno-price (atom 250000))
-(def initial-amount (atom 10000))
-(def forex-rate (atom 13.59))
-(def foreign-price (atom 16000))
+(def luno-btc-zar (atom 200000))
+(def quoinex-btc-usd (atom 10000))
+(def bitstamp-btc-usd (atom 10000))
+(def coinbase-btc-eur (atom 10000))
 
-(defn update-luno []
+(def zar-starting (atom 100000))
+(def zar-usd (atom 1))
+(def zar-eur (atom 1))
+
+(defn update-luno-btc-zar []
   (GET (bypass-cors "https://api.mybitx.com/api/1/ticker?pair=XBTZAR")
     :handler (fn [{x "last_trade"}]
-               (reset! luno-price x))))
+               (reset! luno-btc-zar x))))
 
-(defn update-foreign 		[]
+(defn update-quoinex-btc-usd []
+  (GET (bypass-cors "https://api.quoine.com/products/1")
+			 :handler (fn [{price "market_bid"}]
+               (reset! quoinex-btc-usd price))))
+
+(defn update-bitstamp-btc-usd 		[]
   (GET (bypass-cors "https://www.bitstamp.net/api/v2/ticker/btcusd/")
     :handler (fn [{x "last"}]
-               (reset! foreign-price x))))
-(defn update-forex []
+               (reset! bitstamp-btc-usd x))))
+
+(defn update-coinbase-btc-eur []
+  (GET "https://api.coinbase.com/v2/exchange-rates?currency=BTC"
+			 :handler (fn [{{{rate "EUR"} "rates"} "data"}]
+									(js/console.log rate)
+									(reset! coinbase-btc-eur (js/parseInt rate)))))
+
+(defn update-zar-eur []
+  (GET (bypass-cors "https://api.fixer.io/latest?base=EUR")
+    :handler (fn [{{zar "ZAR"} "rates"}]
+               (reset! zar-eur zar))))
+
+(defn update-zar-usd []
   (GET (bypass-cors "https://api.fixer.io/latest?base=USD")
     :handler (fn [{{zar "ZAR"} "rates"}]
-               (reset! forex-rate zar))))
-
-(defstyles s-flex []
-  {:display "flex"
-	 :flex-direction "row"})
+               (reset! zar-usd zar))))
 
 (rum/defc bound-input < rum/reactive [atom']
-  [:input { :type "text" :value (rum/react atom') :on-change #(reset! atom' (get-value-from-input-event %))}])
+  [:input {:type "text" :value (rum/react atom') :on-change #(reset! atom' (get-value-from-input-event %))}])
 
 (defn connected-input [label atom' update-fn]
-  [:div {:class [(s-flex)]}
+  [:div
    [:div label]
    (bound-input atom')
    [:button {:on-click update-fn} "update"]])
 
 (defn refresh-all []
-  (update-luno)
-  (update-foreign)
-  (update-forex))
+  (update-luno-btc-zar)
+  (update-bitstamp-btc-usd)
+  (update-quoinex-btc-usd)
+  (update-coinbase-btc-eur)
+  (update-zar-usd)
+  (update-zar-eur))
 
 (refresh-all)
 
 (rum/defc root < rum/reactive []
-  (let [forex-amount (/ (rum/react initial-amount) (rum/react forex-rate))
-        foreign-bitcoins (/ forex-amount (rum/react foreign-price))
-        final-amount (* foreign-bitcoins (rum/react luno-price))
-        arbitrage-percentage (- (* 100 (/ final-amount (rum/react initial-amount))) 100)]
+
+  (let [get-arbitrage-potential
+        (fn [zar-cur btc-cur]
+          (let [cur-after-forex (/ (rum/react zar-starting) zar-cur)
+                btc-after-forex (/ cur-after-forex btc-cur)
+                zar-ending (* btc-after-forex (rum/react luno-btc-zar))
+                arbitrage-percentage (- (* 100 (/ zar-ending (rum/react zar-starting))) 100)]
+            [arbitrage-percentage (- zar-ending (rum/react zar-starting))]))]
+
     [:div
 
-     (connected-input "Initial Amount" initial-amount #())
-     (connected-input "Luno Price" luno-price update-luno)
-     (connected-input "Forex Rate" forex-rate update-forex)
-     (connected-input "Foreign Exchange Price" foreign-price update-foreign)
+     (connected-input "ZAR starting" zar-starting #())
+     (connected-input "Luno - BTC/ZAR" luno-btc-zar update-luno-btc-zar)
+     (connected-input "Bitstamp - BTC/USD" bitstamp-btc-usd update-bitstamp-btc-usd)
+     (connected-input "Coinbase - BTC/EUR" coinbase-btc-eur update-coinbase-btc-eur)
+     (connected-input "Quoinex - BTC/USD" quoinex-btc-usd update-quoinex-btc-usd)
+     (connected-input "ZAR/USD" zar-usd update-zar-usd)
+     (connected-input "ZAR/EUR" zar-eur update-zar-eur)
 
-     [:div "initial amount " (rum/react initial-amount)]
-     [:div "after forex " forex-amount]
-     [:div "foreign bitcoins " foreign-bitcoins]
-     [:div "final amount " final-amount]
-     [:div "arbitrage percentage " [:h1 arbitrage-percentage "%"]]
-		 [:button {:on-click refresh-all} "refresh all"]]))
+		 (let [[percentage profit] (get-arbitrage-potential (rum/react zar-usd) (rum/react bitstamp-btc-usd))]
+		 	 [:h1 "USD - Bitstamp " percentage "%"])
+
+		 (let [[percentage profit] (get-arbitrage-potential (rum/react zar-usd) (rum/react quoinex-btc-usd))]
+		 	 [:h1 "USD - Quoinex " percentage "%"])
+
+		 (let [[percentage profit] (get-arbitrage-potential (rum/react zar-eur) (rum/react coinbase-btc-eur))]
+		 	 [:h1 "EUR - Coinbase " percentage "%"])
+
+
+     [:button {:on-click refresh-all} "refresh all"]]))
