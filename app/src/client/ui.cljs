@@ -78,7 +78,7 @@
 
 
 (rum/defc investment []
-	(let [dylan-investment 22500
+	(let [dylan-investment 23296.5
 				alexis-investment 103500
 				sharon-investment 600
 				balance-1 (+ alexis-investment dylan-investment sharon-investment)
