@@ -78,7 +78,7 @@
 
 
 (rum/defc investment []
-	(let [dylan-investment 22700
+	(let [dylan-investment 22500
 				alexis-investment 103500
 				sharon-investment 600
 				balance-1 (+ alexis-investment dylan-investment sharon-investment)
@@ -94,7 +94,7 @@
 
 		 [:div {:style {:border-style "dotted"}}
 			[:h3 "Alexis Vincent"]
-			[:h4 "Totol Assets R" (format  (* alexis-percentage balance-last))]
+			[:h4 "Total Assets R" (format  (* alexis-percentage balance-last))]
 			[:h4 "Total Profits R" (format (* alexis-percentage profit))]]
 
 		 [:div {:style {:border-style "dotted"}}
