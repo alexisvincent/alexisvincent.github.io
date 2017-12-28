@@ -14,6 +14,9 @@
 								 [cljs-ajax "0.7.3"]
 								 ;; [reagent "0.8.0-alpha2"]
 								 [rum "0.10.8"]
+								 [stylefy "1.2.0-beta2"]
+                 [cljs-ajax "0.7.3"]
+								 [org.clojure/tools.reader "1.1.1"]
 								 ]
 
   :plugins [[lein-figwheel "0.5.14"]
@@ -30,6 +33,11 @@
                 :figwheel {:on-jsload "client.core/on-js-reload"}
 
                 :compiler {:main client.core
+													 :install-deps true
+													 :npm-deps {:react-router-dom "4.2.2"
+																			:react "15.6.2"
+																			:react-dom "15.6.2"
+																			}
                            :asset-path "js/compiled/out"
                            :output-to "resources/public/js/compiled/client.js"
                            :output-dir "resources/public/js/compiled/out"
@@ -45,6 +53,11 @@
                 :source-paths ["src"]
                 :compiler {:output-to "resources/public/js/compiled/client.js"
                            :main client.core
+													 :install-deps true
+													 :npm-deps {:react-router-dom "4.2.2"
+																			:react "15.6.2"
+																			:react-dom "15.6.2"
+																			}
 													 :parallel-build true
                            :optimizations :advanced
                            :pretty-print false}}]}

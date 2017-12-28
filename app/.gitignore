@@ -1,3 +1,4 @@
+node_modules
 resources/public/js/compiled/*
 !resources/public/js/compiled/client.js
 figwheel_server.log

@@ -4,10 +4,80 @@
    [rum.core :as rum]
    [ajax.core :refer [GET]]
    [cljs.spec.alpha :as s]
-	 [goog.string :as gstring]
-	 [goog.string.format]
+   [goog.string :as gstring]
+   [goog.string.format]
    ;; [cljss.core :as cljss :refer-macros [defstyles]]
-	 ))
+   [cljs.core.async :as async :refer [<! >! chan] :refer-macros [go]]
+   [rum.core :as rum]
+   [react]
+   [clojure.string :as string]
+   [clojure.set :as set]
+   [clojure.walk :as w]
+   [sablono.util]
+   ["react-router-dom/index" :as router]
+   [stylefy.core :as stylefy]))
+
+(stylefy/init)
+
+(defn rumify [react-class & args]
+  (let [[opts children] (if (map? (first args))
+                          [(first args) (rest args)]
+                          [{} args])
+        interpret (fn [comp]
+                    (if (vector? comp)
+                      (sablono.interpreter/interpret comp)
+                      comp))
+
+        children (map interpret children)]
+
+    (apply js/React.createElement react-class
+           (clj->js (sablono.util/html-to-dom-attrs opts)) children)))
+
+(defn reactify [rum-comp]
+  (-> rum-comp meta :rum/class))
+
+(stylefy/font-face
+ {:font-family "Fira Code"
+  :font-style "normal"
+  :font-weight 400
+  :src "url('/fonts/FiraCode-Regular.woff2') format('woff2')"})
+
+(stylefy/font-face
+ {:font-family "Fira Code"
+  :font-style "normal"
+  :font-weight "light"
+  :src "url('/fonts/FiraCode-Light.woff2') format('woff2')"})
+
+(stylefy/tag "body" {:margin 0
+                     :font-family "Fira Code"
+                     :color "rgba(0,0,0,0.8)"})
+
+(def Router (partial rumify router/HashRouter))
+(def Route (partial rumify router/Route))
+(def Switch (partial rumify router/Switch))
+(def Redirect (partial rumify router/Redirect))
+(def Link (partial rumify router/Link))
+
+(def s-flex
+  {:display "flex"})
+
+(def s-center
+  (merge  s-flex
+          {:align-items "center"
+           :justify-content "center"}))
+
+(defn with-style [style & rest]
+  (let [cursor (take-while keyword? rest)
+        maps (drop-while keyword? rest)
+        style-map (if (empty? cursor)
+                    (stylefy/use-style style)
+                    (apply stylefy/use-sub-style (cons style cursor)))]
+    (apply merge (cons style-map maps))))
+
+(defn inline-component [func]
+  (fn [& args]
+    (let [args (map #(js->clj % :keywordize-keys true) args)]
+      (sablono.interpreter/interpret (apply func args)))))
 
 (defn bypass-cors [url]
   (str "https://cors-cpivrgrkxw.now.sh/" url))
@@ -25,7 +95,7 @@
 (def zar-eur (atom 1))
 
 (defn format [x]
-	(gstring/format "%.2f" x))
+  (gstring/format "%.2f" x))
 
 (defn update-luno-btc-zar []
   (GET (bypass-cors "https://api.mybitx.com/api/1/ticker?pair=XBTZAR")
@@ -34,7 +104,7 @@
 
 (defn update-quoinex-btc-usd []
   (GET (bypass-cors "https://api.quoine.com/products/1")
-			 :handler (fn [{price "market_bid"}]
+    :handler (fn [{price "market_bid"}]
                (reset! quoinex-btc-usd price))))
 
 (defn update-bitstamp-btc-usd 		[]
@@ -44,8 +114,8 @@
 
 (defn update-coinbase-btc-eur []
   (GET "https://api.coinbase.com/v2/exchange-rates?currency=BTC"
-			 :handler (fn [{{{rate "EUR"} "rates"} "data"}]
-									(reset! coinbase-btc-eur (js/parseInt rate)))))
+    :handler (fn [{{{rate "EUR"} "rates"} "data"}]
+               (reset! coinbase-btc-eur (js/parseInt rate)))))
 
 (defn update-zar-eur []
   (GET (bypass-cors "https://api.fixer.io/latest?base=EUR")
@@ -77,36 +147,53 @@
 (refresh-all)
 
 
+
 (rum/defc investment []
-	(let [dylan-investment 23296.5
-				alexis-investment 103500
-				sharon-investment 600
-				balance-1 (+ alexis-investment dylan-investment sharon-investment)
-				dylan-percentage (/ dylan-investment balance-1)
-				alexis-percentage (/ alexis-investment balance-1)
-				sharon-percentage (/ sharon-investment balance-1)
-				balance-last balance-1
-				profit (- balance-last balance-1)
-				growth (format (* 100 (- (/ balance-last balance-1) 1)))
+  (let [dylan-investment 23296.5
+        alexis-investment 103500
+        sharon-investment 600
+        balance-1 (+ alexis-investment dylan-investment sharon-investment)
+        dylan-percentage (/ dylan-investment balance-1)
+        alexis-percentage (/ alexis-investment balance-1)
+        sharon-percentage (/ sharon-investment balance-1)
+        balance-last balance-1
+        profit (- balance-last balance-1)
+        growth (format (* 100 (- (/ balance-last balance-1) 1)))
+
+        s-investments (merge s-flex
+                             {:flex-direction "column"
+															:border-style "solid"
+                              ::stylefy/sub-styles {
+																										:1 {:display "flex"
+																												:justify-content "space-around"
+																												}
+
+																										:2 {:display "flex"
+																												:flex-wrap "wrap"
+																												:justify-content "space-around"
+																												}
+																										}})
+				personal-holdings (fn [full-name percentage]
+														[:div (with-style {:padding "5px"
+																							 :border-style "none"})
+														 [:h3 full-name]
+														 [:h4 "Assets: R" (format (* percentage balance-last))]
+														 [:h4 "Profit: R" (format (* percentage profit))]]
+														)
 				]
-		[:div {:style {:border-style "solid"}}
-		 [:h2 "R" balance-last " ( R" profit " profit @" growth "% )"]
 
-		 [:div {:style {:border-style "dotted"}}
-			[:h3 "Alexis Vincent"]
-			[:h4 "Total Assets R" (format  (* alexis-percentage balance-last))]
-			[:h4 "Total Profits R" (format (* alexis-percentage profit))]]
+    [:div (with-style s-investments)
+		 [:div (with-style s-investments :1)
+			[:h2 "Assets: R" balance-last]
+			[:h2 "Profit: R" profit]
+			[:h2 "Growth: " growth "%"]]
 
-		 [:div {:style {:border-style "dotted"}}
-			[:h3 "Sharon Vincent"]
-			[:h4 "Total Assets R" (format (* sharon-percentage balance-last))]
-			[:h4 "Total Profits R" (format (* sharon-percentage profit))]]
+     [:div (with-style s-investments :2)
 
-		 [:div {:style {:border-style "dotted"}}
-			[:h3 "Dylan Vorster"]
-			[:h4 "Total Assets R" (format (* dylan-percentage balance-last))]
-			[:h4 "Total Profits R" (format (* dylan-percentage profit))]]
-		 ]))
+			(personal-holdings "Alexis Vincent" alexis-percentage)
+			(personal-holdings "Dylan Vorster" dylan-percentage)
+			(personal-holdings "Sharon Vincent" sharon-percentage)
+      ]]))
 
 (rum/defc root < rum/reactive []
 
@@ -120,30 +207,26 @@
 
     [:div
 
-		 [:div {:style {:display "flex" :flex-wrap "wrap"}}
-			[:div
-			 (connected-input "ZAR starting" zar-starting #())
-			 (connected-input "Luno - BTC/ZAR" luno-btc-zar update-luno-btc-zar)
-			 (connected-input "Bitstamp - BTC/USD" bitstamp-btc-usd update-bitstamp-btc-usd)
-			 (connected-input "Coinbase - BTC/EUR" coinbase-btc-eur update-coinbase-btc-eur)
-			 (connected-input "Quoinex - BTC/USD" quoinex-btc-usd update-quoinex-btc-usd)
-			 (connected-input "ZAR/USD" zar-usd update-zar-usd)
-			 (connected-input "ZAR/EUR" zar-eur update-zar-eur)
-			 [:button {:on-click refresh-all} "refresh all"]
-			 ]
+     [:div {:style {:display "flex" :flex-wrap "wrap"}}
+      [:div
+       (connected-input "ZAR starting" zar-starting #())
+       (connected-input "Luno - BTC/ZAR" luno-btc-zar update-luno-btc-zar)
+       (connected-input "Bitstamp - BTC/USD" bitstamp-btc-usd update-bitstamp-btc-usd)
+       (connected-input "Coinbase - BTC/EUR" coinbase-btc-eur update-coinbase-btc-eur)
+       (connected-input "Quoinex - BTC/USD" quoinex-btc-usd update-quoinex-btc-usd)
+       (connected-input "ZAR/USD" zar-usd update-zar-usd)
+       (connected-input "ZAR/EUR" zar-eur update-zar-eur)
+       [:button {:on-click refresh-all} "refresh all"]]
 
-			[:div
-			 (let [[percentage profit] (get-arbitrage-potential (rum/react zar-usd) (rum/react bitstamp-btc-usd))]
-				 [:h1 "USD - Bitstamp " (format percentage) "%"])
+      [:div
+       (let [[percentage profit] (get-arbitrage-potential (rum/react zar-usd) (rum/react bitstamp-btc-usd))]
+         [:h2 "USD - Bitstamp " (format percentage) "%"])
 
-			 (let [[percentage profit] (get-arbitrage-potential (rum/react zar-usd) (rum/react quoinex-btc-usd))]
-				 [:h1 "USD - Quoinex " (format percentage) "%"])
+       (let [[percentage profit] (get-arbitrage-potential (rum/react zar-usd) (rum/react quoinex-btc-usd))]
+         [:h2 "USD - Quoinex " (format percentage) "%"])
 
-			 (let [[percentage profit] (get-arbitrage-potential (rum/react zar-eur) (rum/react coinbase-btc-eur))]
-				 [:h1 "EUR - Coinbase " (format percentage) "%"])
-			 ]
+       (let [[percentage profit] (get-arbitrage-potential (rum/react zar-eur) (rum/react coinbase-btc-eur))]
+         [:h2 "EUR - Coinbase " (format percentage) "%"])]]
 
-			]
-
-		 (investment)
+     ;; (investment)
 		 ]))
