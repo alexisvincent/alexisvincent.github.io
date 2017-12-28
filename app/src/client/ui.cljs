@@ -8,14 +8,15 @@
    [goog.string.format]
    ;; [cljss.core :as cljss :refer-macros [defstyles]]
    [cljs.core.async :as async :refer [<! >! chan] :refer-macros [go]]
-   [rum.core :as rum]
    [react]
+   [rum.core :as rum]
    [clojure.string :as string]
    [clojure.set :as set]
    [clojure.walk :as w]
    [sablono.util]
    ["react-router-dom/index" :as router]
-   [stylefy.core :as stylefy]))
+   [stylefy.core :as stylefy]
+	 ))
 
 (stylefy/init)
 
@@ -36,17 +37,18 @@
 (defn reactify [rum-comp]
   (-> rum-comp meta :rum/class))
 
+
 (stylefy/font-face
  {:font-family "Fira Code"
   :font-style "normal"
   :font-weight 400
-  :src "url('/fonts/FiraCode-Regular.woff2') format('woff2')"})
+  :src "url('/app/resources/public/fonts/FiraCode-Regular.woff2') format('woff2')"})
 
 (stylefy/font-face
  {:font-family "Fira Code"
   :font-style "normal"
   :font-weight "light"
-  :src "url('/fonts/FiraCode-Light.woff2') format('woff2')"})
+  :src "url('/app/resources/public/fonts/FiraCode-Light.woff2') format('woff2')"})
 
 (stylefy/tag "body" {:margin 0
                      :font-family "Fira Code"
@@ -146,9 +148,45 @@
 
 (refresh-all)
 
+(rum/defc arbitrage-tracker < rum/reactive []
+  (let [get-arbitrage-potential
+        (fn [zar-cur btc-cur]
+          (let [cur-after-forex  (/ (rum/react zar-starting) zar-cur)
+                swift-fee (/ 110 zar-cur)
+                swift-commission (* 0.0055 cur-after-forex)
+                swift-commission (let [min-fee (/ 150 zar-cur)
+                                       max-fee (/ 600 zar-cur)]
+                                   (cond
+                                     (< swift-commission min-fee) min-fee
+                                     (> swift-commission max-fee) max-fee
+                                     :else swift-commission))
+                cur-after-swift (- cur-after-forex (* 0.0055 cur-after-forex) (/ 110 zar-cur))
+                btc-after-forex (/ cur-after-swift btc-cur)
+                zar-ending (* btc-after-forex (rum/react luno-btc-zar))
+                arbitrage-percentage (- (* 100 (/ zar-ending (rum/react zar-starting))) 100)]
+            [arbitrage-percentage (- zar-ending (rum/react zar-starting))]))]
+    [:div {:style {:display "flex" :flex-wrap "wrap"}}
+     [:div
+      (connected-input "ZAR starting" zar-starting #())
+      (connected-input "Luno - BTC/ZAR" luno-btc-zar update-luno-btc-zar)
+      (connected-input "Bitstamp - BTC/USD" bitstamp-btc-usd update-bitstamp-btc-usd)
+      (connected-input "Coinbase - BTC/EUR" coinbase-btc-eur update-coinbase-btc-eur)
+      (connected-input "Quoinex - BTC/USD" quoinex-btc-usd update-quoinex-btc-usd)
+      (connected-input "ZAR/USD" zar-usd update-zar-usd)
+      (connected-input "ZAR/EUR" zar-eur update-zar-eur)
+      [:button {:on-click refresh-all} "refresh all"]]
 
+     [:div
+      (let [[percentage profit] (get-arbitrage-potential (rum/react zar-usd) (rum/react bitstamp-btc-usd))]
+        [:h2 "USD - Bitstamp " (format percentage) "%"])
 
-(rum/defc investment []
+      (let [[percentage profit] (get-arbitrage-potential (rum/react zar-usd) (rum/react quoinex-btc-usd))]
+        [:h2 "USD - Quoinex " (format percentage) "%"])
+
+      (let [[percentage profit] (get-arbitrage-potential (rum/react zar-eur) (rum/react coinbase-btc-eur))]
+        [:h2 "EUR - Coinbase " (format percentage) "%"])]]))
+
+(rum/defc investment [{{path :path} :match :as x}]
   (let [dylan-investment 23296.5
         alexis-investment 103500
         sharon-investment 600
@@ -162,71 +200,37 @@
 
         s-investments (merge s-flex
                              {:flex-direction "column"
-															:border-style "solid"
-                              ::stylefy/sub-styles {
-																										:1 {:display "flex"
-																												:justify-content "space-around"
-																												}
+                              :border-style "solid"
+                              ::stylefy/sub-styles {:1 {:display "flex"
+                                                        :justify-content "space-around"}
 
-																										:2 {:display "flex"
-																												:flex-wrap "wrap"
-																												:justify-content "space-around"
-																												}
-																										}})
-				personal-holdings (fn [full-name percentage]
-														[:div (with-style {:padding "5px"
-																							 :border-style "none"})
-														 [:h3 full-name]
-														 [:h4 "Assets: R" (format (* percentage balance-last))]
-														 [:h4 "Profit: R" (format (* percentage profit))]]
-														)
-				]
+                                                    :2 {:display "flex"
+                                                        :flex-wrap "wrap"
+                                                        :justify-content "space-around"}}})
+        personal-holdings (fn [full-name percentage]
+                            [:div (with-style {:padding "5px"
+                                               :border-style "none"})
+                             [:h3 full-name]
+                             [:h4 "Assets: R" (format (* percentage balance-last))]
+                             [:h4 "Profit: R" (format (* percentage profit))]])]
 
     [:div (with-style s-investments)
-		 [:div (with-style s-investments :1)
-			[:h2 "Assets: R" balance-last]
-			[:h2 "Profit: R" profit]
-			[:h2 "Growth: " growth "%"]]
+     [:div (with-style s-investments :1)
+      [:h2 "Assets: R" balance-last]
+      [:h2 "Profit: R" profit]
+      [:h2 "Growth: " growth "%"]]
 
      [:div (with-style s-investments :2)
-
-			(personal-holdings "Alexis Vincent" alexis-percentage)
-			(personal-holdings "Dylan Vorster" dylan-percentage)
-			(personal-holdings "Sharon Vincent" sharon-percentage)
-      ]]))
+      (Route {:path (str path "/dylan")
+							:component (inline-component #(personal-holdings "Dylan Vorster" dylan-percentage))})
+      (Route {:path (str path "/alexis")
+							:component (inline-component #(personal-holdings "Alexis Vincent" alexis-percentage))})
+      (Route {:path (str path "/sharon")
+							:component (inline-component #(personal-holdings "Sharon Vincent" sharon-percentage))})
+			]]))
 
 (rum/defc root < rum/reactive []
-
-  (let [get-arbitrage-potential
-        (fn [zar-cur btc-cur]
-          (let [cur-after-forex (/ (rum/react zar-starting) zar-cur)
-                btc-after-forex (/ cur-after-forex btc-cur)
-                zar-ending (* btc-after-forex (rum/react luno-btc-zar))
-                arbitrage-percentage (- (* 100 (/ zar-ending (rum/react zar-starting))) 100)]
-            [arbitrage-percentage (- zar-ending (rum/react zar-starting))]))]
-
-    [:div
-
-     [:div {:style {:display "flex" :flex-wrap "wrap"}}
-      [:div
-       (connected-input "ZAR starting" zar-starting #())
-       (connected-input "Luno - BTC/ZAR" luno-btc-zar update-luno-btc-zar)
-       (connected-input "Bitstamp - BTC/USD" bitstamp-btc-usd update-bitstamp-btc-usd)
-       (connected-input "Coinbase - BTC/EUR" coinbase-btc-eur update-coinbase-btc-eur)
-       (connected-input "Quoinex - BTC/USD" quoinex-btc-usd update-quoinex-btc-usd)
-       (connected-input "ZAR/USD" zar-usd update-zar-usd)
-       (connected-input "ZAR/EUR" zar-eur update-zar-eur)
-       [:button {:on-click refresh-all} "refresh all"]]
-
-      [:div
-       (let [[percentage profit] (get-arbitrage-potential (rum/react zar-usd) (rum/react bitstamp-btc-usd))]
-         [:h2 "USD - Bitstamp " (format percentage) "%"])
-
-       (let [[percentage profit] (get-arbitrage-potential (rum/react zar-usd) (rum/react quoinex-btc-usd))]
-         [:h2 "USD - Quoinex " (format percentage) "%"])
-
-       (let [[percentage profit] (get-arbitrage-potential (rum/react zar-eur) (rum/react coinbase-btc-eur))]
-         [:h2 "EUR - Coinbase " (format percentage) "%"])]]
-
-     ;; (investment)
-		 ]))
+  (Router
+   [:div
+    (Route {:path "/accounts" :component #(investment (js->clj % :keywordize-keys true))})
+    (Route {:path "/" :exact true :component #(arbitrage-tracker (js->clj %))})]))
