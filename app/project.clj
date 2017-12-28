@@ -56,7 +56,7 @@
 																			:react-dom "15.6.2"
 																			}
 													 :parallel-build true
-                           :optimizations :advanced
+                           :optimizations :whitespace
                            :pretty-print false}}]}
 
   :figwheel {

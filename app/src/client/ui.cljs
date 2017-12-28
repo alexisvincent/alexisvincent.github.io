@@ -8,8 +8,8 @@
    [goog.string.format]
    ;; [cljss.core :as cljss :refer-macros [defstyles]]
    [cljs.core.async :as async :refer [<! >! chan] :refer-macros [go]]
-   [react]
    [rum.core :as rum]
+   [react]
    [clojure.string :as string]
    [clojure.set :as set]
    [clojure.walk :as w]
@@ -37,18 +37,17 @@
 (defn reactify [rum-comp]
   (-> rum-comp meta :rum/class))
 
-
 (stylefy/font-face
  {:font-family "Fira Code"
   :font-style "normal"
   :font-weight 400
-  :src "url('/app/resources/public/fonts/FiraCode-Regular.woff2') format('woff2')"})
+  :src "url('/fonts/FiraCode-Regular.woff2') format('woff2')"})
 
 (stylefy/font-face
  {:font-family "Fira Code"
   :font-style "normal"
   :font-weight "light"
-  :src "url('/app/resources/public/fonts/FiraCode-Light.woff2') format('woff2')"})
+  :src "url('/fonts/FiraCode-Light.woff2') format('woff2')"})
 
 (stylefy/tag "body" {:margin 0
                      :font-family "Fira Code"
