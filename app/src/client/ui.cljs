@@ -147,7 +147,20 @@
 (refresh-all)
 
 (def arbitrage-log
-  '({:kind :deposit
+  '(
+		{:kind :open-account
+		 :name :alexis}
+
+		{:kind :open-account
+		 :name :dylan}
+
+		{:kind :open-account
+		 :name :emma}
+
+		{:kind :open-account
+		 :name :sharon}
+
+		{:kind :deposit
      :time 1
      :account :alexis
      :amount 103500}
@@ -223,21 +236,14 @@
 		))
 
 (defn make-empty-ledger []
-  {:fees-outstanding 0
+  {;:fees-outstanding 0
 	 :accounts {}
    :history {}})
 
 (defn transact-on-account [{:keys [amount kind] account-key :account :as event} ledger]
   (let [ledger (update ledger :accounts
-                       (fn [{account account-key :as accounts}]
-                         (let [accounts (if (nil? account)
-                                          (assoc accounts account-key {:balance 0
-																																			 :deposited 0
-																																			 :withdrawn 0
-                                                                       :history '()})
-                                          accounts)
-                               {{:keys [balance history deposited withdrawn] :as account} account-key} accounts
-                               balance (if (or (= kind :deposit) (= kind :profit-deposit))
+                       (fn [{{:keys [balance history deposited withdrawn] :as account} account-key :as accounts}]
+                         (let [balance (if (or (= kind :deposit) (= kind :profit-deposit))
                                          (+ balance amount)
                                          (- balance amount))
 
@@ -268,6 +274,14 @@
 (defn add-event-to-history [ledger event]
   (update ledger :history (partial cons event)))
 
+(defmethod process-event :open-account [ledger {name :name :as event}]
+  (let [ledger (update ledger :accounts #(assoc % name {:balance 0
+																												:deposited 0
+																												:withdrawn 0
+																												:history '()}) )
+				ledger (add-event-to-history ledger event)]
+		ledger))
+
 (defmethod process-event :withdrawal [ledger event]
   (transact-on-account event ledger))
 
@@ -280,13 +294,13 @@
 (defmethod process-event :default [ledger event]
   (add-event-to-history ledger event))
 
-(defmethod process-event :exchange-withdrawal [{:keys [accounts fees-outstanding] :as ledger} {:keys [time amount-received] :as event}]
+(defmethod process-event :exchange-withdrawal [{:keys [accounts] :as ledger} {:keys [time amount-received] :as event}]
   (let [total-assets (get-total-assets ledger)
         ledger (add-event-to-history ledger event)
         ledger (reduce
                 (fn [ledger [account-name {:keys [balance] :as account}]]
                   (let [share-ratio (/ balance total-assets)
-                        profit-for-account (* share-ratio (- amount-received fees-outstanding total-assets))
+                        profit-for-account (* share-ratio (- amount-received total-assets))
                         event	{:kind :profit-deposit
                                :time time
                                :account account-name
@@ -298,13 +312,13 @@
                 accounts)]
     ledger))
 
-(defmethod process-event :exchange-deposit [{:keys [accounts] :as ledger} {:keys [fees] :as event}]
-	(update ledger :fees-outstanding (partial + (->> fees
-																						(filter (fn [{:keys [description amount]}]
-																											(or
-																											 (= description :swift-fee)
-																											 (= description :swift-commission))) )
-																						(reduce +)))))
+;; (defmethod process-event :exchange-deposit [{:keys [accounts] :as ledger} {:keys [fees] :as event}]
+;; 	(update ledger :fees-outstanding (partial + (->> fees
+;; 																						(filter (fn [{:keys [description amount]}]
+;; 																											(or
+;; 																											 (= description :swift-fee)
+;; 																											 (= description :swift-commission))) )
+;; 																						(reduce +)))))
 
 
 (defn process-events [ledger events]
@@ -423,6 +437,8 @@
               :component (inline-component #(personal-holdings "Dylan Vorster" :dylan))})
       (Route {:path (str path "/alexis")
               :component (inline-component #(personal-holdings "Alexis Vincent" :alexis))})
+      (Route {:path (str path "/emma")
+              :component (inline-component #(personal-holdings "Emma Botha" :emma))})
       (Route {:path (str path "/sharon")
               :component (inline-component #(personal-holdings "Sharon Vincent" :sharon))})]]))
 
