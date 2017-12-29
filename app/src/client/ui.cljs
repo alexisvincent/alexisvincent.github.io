@@ -131,10 +131,10 @@
   [:input {:type "text" :value (rum/react atom') :on-change #(reset! atom' (get-value-from-input-event %))}])
 
 (defn connected-input [label atom' update-fn]
-  [:div
+  [:div (with-style {:padding-bottom "5px"})
    [:div label]
    (bound-input atom')
-   [:button {:on-click update-fn} "update"]])
+   [:button (with-style {:padding-left "5px"} {:on-click update-fn}) "update"]])
 
 (defn refresh-all []
   (update-luno-btc-zar)
@@ -144,7 +144,7 @@
   (update-zar-usd)
   (update-zar-eur))
 
-;; (refresh-all)
+(refresh-all)
 
 (def arbitrage-log
   '({:kind :deposit
@@ -342,25 +342,42 @@
                 arbitrage-percentage (- (* 100 (/ zar-ending (rum/react zar-starting))) 100)]
             [arbitrage-percentage (- zar-ending (rum/react zar-starting))]))]
     [:div {:style {:display "flex" :flex-wrap "wrap"}}
-     [:div
-      (connected-input "ZAR starting" zar-starting #())
-      (connected-input "Luno - BTC/ZAR" luno-btc-zar update-luno-btc-zar)
-      (connected-input "Bitstamp - BTC/USD" bitstamp-btc-usd update-bitstamp-btc-usd)
-      (connected-input "Coinbase - BTC/EUR" coinbase-btc-eur update-coinbase-btc-eur)
-      (connected-input "Quoinex - BTC/USD" quoinex-btc-usd update-quoinex-btc-usd)
-      (connected-input "ZAR/USD" zar-usd update-zar-usd)
-      (connected-input "ZAR/EUR" zar-eur update-zar-eur)
-      [:button {:on-click refresh-all} "refresh all"]]
 
-     [:div
+     [:div (with-style {:display "flex"
+												:flex-direction "column"
+												:align-items "flex-start"
+												:padding "20px"
+												})
       (let [[percentage profit] (get-arbitrage-potential (rum/react zar-usd) (rum/react bitstamp-btc-usd))]
-        [:h2 "USD - Bitstamp " (format percentage) "%"])
+        [:div (with-style {:font-weight 800}) "USD - Bitstamp " (format percentage) "%"])
 
       (let [[percentage profit] (get-arbitrage-potential (rum/react zar-usd) (rum/react quoinex-btc-usd))]
-        [:h2 "USD - Quoinex " (format percentage) "%"])
+        [:div (with-style {:font-weight 800}) "USD - Quoinex " (format percentage) "%"])
 
       (let [[percentage profit] (get-arbitrage-potential (rum/react zar-eur) (rum/react coinbase-btc-eur))]
-        [:h2 "EUR - Coinbase " (format percentage) "%"])]]))
+        [:div (with-style {:font-weight 800}) "EUR - Coinbase " (format percentage) "%"])
+
+
+			[:div (with-style {:display "flex"
+												 :width "100%"
+												 :flex-direction "column"
+												 :padding-top "10px"
+												 })
+
+
+			 (connected-input "ZAR starting" zar-starting #())
+			 (connected-input "Luno - BTC/ZAR" luno-btc-zar update-luno-btc-zar)
+			 (connected-input "Bitstamp - BTC/USD" bitstamp-btc-usd update-bitstamp-btc-usd)
+			 (connected-input "Coinbase - BTC/EUR" coinbase-btc-eur update-coinbase-btc-eur)
+			 (connected-input "Quoinex - BTC/USD" quoinex-btc-usd update-quoinex-btc-usd)
+			 (connected-input "ZAR/USD" zar-usd update-zar-usd)
+			 (connected-input "ZAR/EUR" zar-eur update-zar-eur)
+
+			 [:button (with-style {:padding "5px"
+														 :padding-top "10px"
+														 :text-align "left"} {:on-click refresh-all}) "refresh all"]
+
+			]]]))
 
 
 (rum/defc investment [{{path :path} :match :as x}]
@@ -368,7 +385,8 @@
                              {:flex-direction "column"
                               :width "100%"
 															:padding "5px"
-                              :border-style "solid"})
+                              ;; :border-style "solid"
+															})
 				s-inv-1 {:display "flex"
 								 :justify-content "space-around"
 								 :width "100%"}
@@ -408,6 +426,8 @@
               :component (inline-component #(personal-holdings "Dylan Vorster" :dylan))})
       (Route {:path (str path "/alexis")
               :component (inline-component #(personal-holdings "Alexis Vincent" :alexis))})
+      (Route {:path (str path "/alexis")
+              :component (inline-component #(personal-holdings "Alexis Vincent" :alexis))})
       (Route {:path (str path "/sharon")
               :component (inline-component #(personal-holdings "Sharon Vincent" :sharon))})]]))
 
@@ -415,10 +435,11 @@
   (Router
    [:div (with-style {:display "flex"
                       :flex-direction "column"
-                      :align-items "center"
                       :justify-content "center"
 											})
-    [:h1 "alexisvincent.io"]
+    (Route {:path "/" :exact true :component (inline-component
+																							(fn []
+																								[:h1 "alexisvincent.io"]))})
 
     (Route {:path "/accounts" :component #(investment (js->clj % :keywordize-keys true))})
     (Route {:path "/arbitrage" :component #(arbitrage-tracker (js->clj %))})]))
