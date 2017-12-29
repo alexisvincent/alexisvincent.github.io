@@ -193,15 +193,17 @@
         dylan-percentage (/ dylan-investment balance-1)
         alexis-percentage (/ alexis-investment balance-1)
         sharon-percentage (/ sharon-investment balance-1)
-        balance-last balance-1
+        balance-last 142976.23
         profit (- balance-last balance-1)
         growth (format (* 100 (- (/ balance-last balance-1) 1)))
 
         s-investments (merge s-flex
                              {:flex-direction "column"
+															:width "100%"
                               :border-style "solid"
                               ::stylefy/sub-styles {:1 {:display "flex"
-                                                        :justify-content "space-around"}
+                                                        :justify-content "space-around"
+																												:width "100%"}
 
                                                     :2 {:display "flex"
                                                         :flex-wrap "wrap"
@@ -230,6 +232,11 @@
 
 (rum/defc root < rum/reactive []
   (Router
-   [:div
+   [:div (with-style {:display "flex"
+											:flex-direction "column"
+											:align-items "center"
+											:justify-content "center"})
+		[:h1 "alexisvincent.io"]
+
     (Route {:path "/accounts" :component #(investment (js->clj % :keywordize-keys true))})
-    (Route {:path "/" :exact true :component #(arbitrage-tracker (js->clj %))})]))
+    (Route {:path "/arbitrage" :component #(arbitrage-tracker (js->clj %))})]))
