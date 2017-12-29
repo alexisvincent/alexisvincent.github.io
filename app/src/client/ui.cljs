@@ -155,15 +155,20 @@
 		 :name :dylan}
 
 		{:kind :open-account
-		 :name :emma}
+		 :name :sharon}
 
 		{:kind :open-account
-		 :name :sharon}
+		 :name :emma}
 
 		{:kind :deposit
      :time 1
      :account :alexis
-     :amount 103500}
+     :amount 103490}
+
+		{:kind :deposit
+     :time 1
+     :account :emma
+     :amount 10}
 
     {:kind :deposit
      :time 1
@@ -233,6 +238,7 @@
      :time 1
      :account :alexis
      :amount 5000}
+
 		))
 
 (defn make-empty-ledger []
