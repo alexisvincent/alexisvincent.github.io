@@ -213,8 +213,8 @@
      :currency :zar
      :fees '({:description :withdrawal-fee
               :amount 8.5})
-     :amount-sent 103500
-     :amount-received 100}
+     :amount-sent 142471.13
+     :amount-received 142462.63}
 
     {:kind :withdrawal
      :time 1
@@ -236,14 +236,25 @@
                        (fn [{account account-key :as accounts}]
                          (let [accounts (if (nil? account)
                                           (assoc accounts account-key {:balance 0
+																																			 :deposited 0
+																																			 :withdrawn 0
                                                                        :history '()})
                                           accounts)
-                               {{:keys [balance history] :as account} account-key} accounts
-                               balance (if (= kind :deposit)
+                               {{:keys [balance history deposited withdrawn] :as account} account-key} accounts
+                               balance (if (or (= kind :deposit) (= kind :profit-deposit))
                                          (+ balance amount)
                                          (- balance amount))
+
+                               deposited (cond
+																					 (= kind :deposit) (+ deposited amount)
+																					 :else deposited)
+
+                               withdrawn (cond
+																					 (= kind :withdrawn) (+ withdrawn amount)
+																					 :else withdrawn)
+
                                history (cons event history)
-                               account (assoc account :balance balance :history history)
+                               account (assoc account :balance balance :history history :deposited deposited :withdrawn withdrawn)
                                accounts (assoc accounts account-key account)]
                            accounts)))
         ledger (update ledger :history (partial cons event))]
@@ -279,12 +290,12 @@
         ledger (reduce
                 (fn [ledger [account-name {:keys [balance] :as account}]]
                   (let [share-ratio (/ balance total-assets)
-                        profit-for-account (* share-ratio (- amount-received fees-outstanding))
+                        profit-for-account (* share-ratio (- amount-received fees-outstanding total-assets))
                         event	{:kind :profit-deposit
                                :time time
                                :account account-name
                                :amount profit-for-account}
-												ledger (set ledger :fees-outstanding 0)
+												ledger (assoc ledger :fees-outstanding 0)
                         ledger (transact-on-account event ledger)]
                     ledger))
                 ledger
@@ -303,9 +314,15 @@
 (defn process-events [ledger events]
   (reduce process-event ledger events))
 
-(process-events (make-empty-ledger)  arbitrage-log)
-
 ;; (process-event (make-empty-ledger) (first arbitrage-log))
+(defn get-profits [{accounts :accounts :as ledger} account-key]
+	(let [{{:keys [withdrawn deposited balance]} account-key} accounts]
+		(-> balance
+				(- deposited)
+				(+ withdrawn))))
+
+(def ledger
+	(process-events (make-empty-ledger)  arbitrage-log))
 
 (rum/defc arbitrage-tracker < rum/reactive []
   (let [get-arbitrage-potential
@@ -345,56 +362,62 @@
       (let [[percentage profit] (get-arbitrage-potential (rum/react zar-eur) (rum/react coinbase-btc-eur))]
         [:h2 "EUR - Coinbase " (format percentage) "%"])]]))
 
-(rum/defc investment [{{path :path} :match :as x}]
-  (let [dylan-investment 23296.5
-        alexis-investment 103500
-        sharon-investment 600
-        balance-1 (+ alexis-investment dylan-investment sharon-investment)
-        dylan-percentage (/ dylan-investment balance-1)
-        alexis-percentage (/ alexis-investment balance-1)
-        sharon-percentage (/ sharon-investment balance-1)
-        balance-last 142976.23
-        profit (- balance-last balance-1)
-        growth (format (* 100 (- (/ balance-last balance-1) 1)))
 
-        s-investments (merge s-flex
+(rum/defc investment [{{path :path} :match :as x}]
+  (let [s-inv (merge s-flex
                              {:flex-direction "column"
                               :width "100%"
-                              :border-style "solid"
-                              ::stylefy/sub-styles {:1 {:display "flex"
-                                                        :justify-content "space-around"
-                                                        :width "100%"}
+															:padding "5px"
+                              :border-style "solid"})
+				s-inv-1 {:display "flex"
+								 :justify-content "space-around"
+								 :width "100%"}
 
-                                                    :2 {:display "flex"
-                                                        :flex-wrap "wrap"
-                                                        :justify-content "space-around"}}})
-        personal-holdings (fn [full-name percentage]
-                            [:div (with-style {:padding "5px"
-                                               :border-style "none"})
-                             [:h3 full-name]
-                             [:h4 "Assets: R" (format (* percentage balance-last))]
-                             [:h4 "Profit: R" (format (* percentage profit))]])]
+				s-inv-2 {:display "flex"
+								 :flex-wrap "wrap"
+								 :padding "5px"
+								 ;; :justify-content "space-around"
+								 }
 
-    [:div (with-style s-investments)
-     [:div (with-style s-investments :1)
-      [:h2 "Assets: R" balance-last]
-      [:h2 "Profit: R" profit]
-      [:h2 "Growth: " growth "%"]]
+        personal-holdings (fn [full-name account-key]
+														(let [{{{:keys [balance withdrawn deposited history]} account-key} :accounts} ledger
+																	profits (get-profits ledger account-key)
+																	total-deposits-with-profits (+ balance withdrawn)
+																	asset-growth (* 100 (- (/ total-deposits-with-profits deposited) 1))]
+															[:div (with-style {:padding "5px"
+																								 :border-style "none"})
+															 [:h2 full-name]
+															 [:div (with-style {:padding "5px"})
+																[:h4 "Assets: R" (format balance)]
+																[:h4 "Deposited: R" (format deposited)]
+																[:h4 "Withdrawn: R" (format withdrawn)]
+																[:h4 "Profit: R" (format profits)]
+																[:h4 "Growth: " (format asset-growth) "%"]
 
-     [:div (with-style s-investments :2)
+																(for [{:keys [time amount kind] :as event} history]
+																	[:div (with-style {:padding-left "5px"
+																										 :padding-bottom "5px"
+																										 :font-size "12px"} {:key (hash event)})
+																	 (str time " ") (str kind " ") (str "R" (format amount))])]
+															 ]))]
+
+    [:div (with-style s-inv)
+     [:div (with-style s-inv-1)]
+     [:div (with-style s-inv-2)
       (Route {:path (str path "/dylan")
-              :component (inline-component #(personal-holdings "Dylan Vorster" dylan-percentage))})
+              :component (inline-component #(personal-holdings "Dylan Vorster" :dylan))})
       (Route {:path (str path "/alexis")
-              :component (inline-component #(personal-holdings "Alexis Vincent" alexis-percentage))})
+              :component (inline-component #(personal-holdings "Alexis Vincent" :alexis))})
       (Route {:path (str path "/sharon")
-              :component (inline-component #(personal-holdings "Sharon Vincent" sharon-percentage))})]]))
+              :component (inline-component #(personal-holdings "Sharon Vincent" :sharon))})]]))
 
 (rum/defc root < rum/reactive []
   (Router
    [:div (with-style {:display "flex"
                       :flex-direction "column"
                       :align-items "center"
-                      :justify-content "center"})
+                      :justify-content "center"
+											})
     [:h1 "alexisvincent.io"]
 
     (Route {:path "/accounts" :component #(investment (js->clj % :keywordize-keys true))})
