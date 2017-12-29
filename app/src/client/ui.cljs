@@ -220,11 +220,7 @@
      :time 1
      :account :alexis
      :amount 5000}
-
-    {:kind :deposit
-     :time 1
-     :account :alexis
-     :amount 1000}))
+		))
 
 (defn make-empty-ledger []
   {:fees-outstanding 0
@@ -250,7 +246,7 @@
 																					 :else deposited)
 
                                withdrawn (cond
-																					 (= kind :withdrawn) (+ withdrawn amount)
+																					 (= kind :withdrawal) (+ withdrawn amount)
 																					 :else withdrawn)
 
                                history (cons event history)
@@ -317,6 +313,7 @@
 ;; (process-event (make-empty-ledger) (first arbitrage-log))
 (defn get-profits [{accounts :accounts :as ledger} account-key]
 	(let [{{:keys [withdrawn deposited balance]} account-key} accounts]
+
 		(-> balance
 				(- deposited)
 				(+ withdrawn))))
@@ -399,8 +396,8 @@
 
         personal-holdings (fn [full-name account-key]
 														(let [{{{:keys [balance withdrawn deposited history]} account-key} :accounts} ledger
-																	profits (get-profits ledger account-key)
 																	total-deposits-with-profits (+ balance withdrawn)
+																	profits (- total-deposits-with-profits deposited)
 																	asset-growth (* 100 (- (/ total-deposits-with-profits deposited) 1))]
 															[:div (with-style {:padding "5px"
 																								 :border-style "none"})
@@ -424,8 +421,6 @@
      [:div (with-style s-inv-2)
       (Route {:path (str path "/dylan")
               :component (inline-component #(personal-holdings "Dylan Vorster" :dylan))})
-      (Route {:path (str path "/alexis")
-              :component (inline-component #(personal-holdings "Alexis Vincent" :alexis))})
       (Route {:path (str path "/alexis")
               :component (inline-component #(personal-holdings "Alexis Vincent" :alexis))})
       (Route {:path (str path "/sharon")
