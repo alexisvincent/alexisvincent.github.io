@@ -15,8 +15,7 @@
    [clojure.walk :as w]
    [sablono.util]
    ["react-router-dom/index" :as router]
-   [stylefy.core :as stylefy]
-	 ))
+   [stylefy.core :as stylefy]))
 
 (stylefy/init)
 
@@ -145,7 +144,168 @@
   (update-zar-usd)
   (update-zar-eur))
 
-(refresh-all)
+;; (refresh-all)
+
+(def arbitrage-log
+  '({:kind :deposit
+     :time 1
+     :account :alexis
+     :amount 103500}
+
+    {:kind :deposit
+     :time 1
+     :account :dylan
+     :amount 23296.5}
+
+    {:kind :deposit
+     :time 1
+     :account :sharon
+     :amount 600}
+
+    {:kind :forex
+     :time 1
+     :pair [:zar :eur]
+     :quoted-rate 15.34
+     :amount-sent 103500
+     :amount-received 1033}
+
+    {:kind :exchange-deposit
+     :time 1
+     :exchange :cubits
+     :currency :eur
+     :swift-fee 200
+     :fees '({:description :deposit-fee
+              :amount 16}
+             {:description :swift-fee
+              :amount 150}
+             {:description :swift-commission
+              :amount 150})
+     :amount-sent 103500
+     :amount-received 100}
+
+    {:kind :buy-bitcoin
+     :time 1
+     :exchange :cubits
+     :currency :eur
+     :amount-sent 200
+     :amount-received 200
+     :effective-rate 1.1}
+
+    {:kind :transfer-bitcoin
+     :time 1
+     :from :cubits
+     :to :luno
+     :amount-sent 234234
+     :amount-recieved 2
+     :time-recieved 1}
+
+    {:kind :sell-bitcoin
+     :time 1
+     :exchange :luno
+     :currency :zar
+     :amount-sent 200
+     :amount-received 200
+     :effective-rate 1.1}
+
+    {:kind :exchange-withdrawal
+     :time 1
+     :exchange :luno
+     :currency :zar
+     :fees '({:description :withdrawal-fee
+              :amount 8.5})
+     :amount-sent 103500
+     :amount-received 100}
+
+    {:kind :withdrawal
+     :time 1
+     :account :alexis
+     :amount 5000}
+
+    {:kind :deposit
+     :time 1
+     :account :alexis
+     :amount 1000}))
+
+(defn make-empty-ledger []
+  {:fees-outstanding 0
+	 :accounts {}
+   :history {}})
+
+(defn transact-on-account [{:keys [amount kind] account-key :account :as event} ledger]
+  (let [ledger (update ledger :accounts
+                       (fn [{account account-key :as accounts}]
+                         (let [accounts (if (nil? account)
+                                          (assoc accounts account-key {:balance 0
+                                                                       :history '()})
+                                          accounts)
+                               {{:keys [balance history] :as account} account-key} accounts
+                               balance (if (= kind :deposit)
+                                         (+ balance amount)
+                                         (- balance amount))
+                               history (cons event history)
+                               account (assoc account :balance balance :history history)
+                               accounts (assoc accounts account-key account)]
+                           accounts)))
+        ledger (update ledger :history (partial cons event))]
+    ledger))
+
+(defn get-total-assets [{accounts :accounts}]
+  (let [balances (for [[_ {balance :balance}] accounts]
+                   balance)]
+    (reduce + balances)))
+
+(defmulti process-event
+  (fn [_ {kind :kind}]
+    kind))
+
+(defn add-event-to-history [ledger event]
+  (update ledger :history (partial cons event)))
+
+(defmethod process-event :withdrawal [ledger event]
+  (transact-on-account event ledger))
+
+(defmethod process-event :deposit [ledger event]
+  (transact-on-account event ledger))
+
+(defmethod process-event :profit-deposit [ledger event]
+  (transact-on-account event ledger))
+
+(defmethod process-event :default [ledger event]
+  (add-event-to-history ledger event))
+
+(defmethod process-event :exchange-withdrawal [{:keys [accounts fees-outstanding] :as ledger} {:keys [time amount-received] :as event}]
+  (let [total-assets (get-total-assets ledger)
+        ledger (add-event-to-history ledger event)
+        ledger (reduce
+                (fn [ledger [account-name {:keys [balance] :as account}]]
+                  (let [share-ratio (/ balance total-assets)
+                        profit-for-account (* share-ratio (- amount-received fees-outstanding))
+                        event	{:kind :profit-deposit
+                               :time time
+                               :account account-name
+                               :amount profit-for-account}
+												ledger (set ledger :fees-outstanding 0)
+                        ledger (transact-on-account event ledger)]
+                    ledger))
+                ledger
+                accounts)]
+    ledger))
+
+(defmethod process-event :exchange-deposit [{:keys [accounts] :as ledger} {:keys [fees] :as event}]
+	(update ledger :fees-outstanding (partial + (->> fees
+																						(filter (fn [{:keys [description amount]}]
+																											(or
+																											 (= description :swift-fee)
+																											 (= description :swift-commission))) )
+																						(reduce +)))))
+
+
+(defn process-events [ledger events]
+  (reduce process-event ledger events))
+
+(process-events (make-empty-ledger)  arbitrage-log)
+
+;; (process-event (make-empty-ledger) (first arbitrage-log))
 
 (rum/defc arbitrage-tracker < rum/reactive []
   (let [get-arbitrage-potential
@@ -154,7 +314,7 @@
                 swift-fee (/ 110 zar-cur)
                 swift-commission (* 0.0055 cur-after-forex)
                 swift-commission (let [min-fee (/ 150 zar-cur)
-                                       max-fee (/ 600 zar-cur)]
+                                       max-fee (/ 650 zar-cur)]
                                    (cond
                                      (< swift-commission min-fee) min-fee
                                      (> swift-commission max-fee) max-fee
@@ -199,11 +359,11 @@
 
         s-investments (merge s-flex
                              {:flex-direction "column"
-															:width "100%"
+                              :width "100%"
                               :border-style "solid"
                               ::stylefy/sub-styles {:1 {:display "flex"
                                                         :justify-content "space-around"
-																												:width "100%"}
+                                                        :width "100%"}
 
                                                     :2 {:display "flex"
                                                         :flex-wrap "wrap"
@@ -223,20 +383,19 @@
 
      [:div (with-style s-investments :2)
       (Route {:path (str path "/dylan")
-							:component (inline-component #(personal-holdings "Dylan Vorster" dylan-percentage))})
+              :component (inline-component #(personal-holdings "Dylan Vorster" dylan-percentage))})
       (Route {:path (str path "/alexis")
-							:component (inline-component #(personal-holdings "Alexis Vincent" alexis-percentage))})
+              :component (inline-component #(personal-holdings "Alexis Vincent" alexis-percentage))})
       (Route {:path (str path "/sharon")
-							:component (inline-component #(personal-holdings "Sharon Vincent" sharon-percentage))})
-			]]))
+              :component (inline-component #(personal-holdings "Sharon Vincent" sharon-percentage))})]]))
 
 (rum/defc root < rum/reactive []
   (Router
    [:div (with-style {:display "flex"
-											:flex-direction "column"
-											:align-items "center"
-											:justify-content "center"})
-		[:h1 "alexisvincent.io"]
+                      :flex-direction "column"
+                      :align-items "center"
+                      :justify-content "center"})
+    [:h1 "alexisvincent.io"]
 
     (Route {:path "/accounts" :component #(investment (js->clj % :keywordize-keys true))})
     (Route {:path "/arbitrage" :component #(arbitrage-tracker (js->clj %))})]))
