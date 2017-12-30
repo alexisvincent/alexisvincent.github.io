@@ -239,6 +239,15 @@
      :account :alexis
      :amount 5000}
 
+    {:kind :exchange-withdrawal
+     :time 1
+     :exchange :luno
+     :currency :zar
+     :fees '({:description :withdrawal-fee
+              :amount 8.5})
+     :amount-sent 175811.42
+     :amount-received 175803.42}
+
 		))
 
 (defn make-empty-ledger []
@@ -299,6 +308,8 @@
 
 (defmethod process-event :default [ledger event]
   (add-event-to-history ledger event))
+
+(+ 2 3)
 
 (defmethod process-event :exchange-withdrawal [{:keys [accounts] :as ledger} {:keys [time amount-received] :as event}]
   (let [total-assets (get-total-assets ledger)

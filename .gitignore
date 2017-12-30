@@ -1,3 +1,4 @@
 .DS_Store
 js/compiled/*
 !js/compiled/client.js
+simple

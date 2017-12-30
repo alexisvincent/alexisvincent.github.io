@@ -5,3 +5,5 @@
 (enable-console-print!)
 
 (rum/mount (ui/root) (js/document.getElementById "app"))
+
+(+ 3 4 )
