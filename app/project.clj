@@ -27,10 +27,10 @@
 
                 ;; The presence of a :figwheel configuration here
                 ;; will cause figwheel to inject the figwheel client into the build
-                :figwheel {:on-jsload "client.core/on-js-reload"}
+                :figwheel {:on-jsload "app.core/on-js-reload"}
 
-                :compiler {:main client.core
-													 :install-deps true
+                :compiler {:main app.core
+													 :install-deps false
 													 :npm-deps {:react-router-dom "4.2.2"
 																			:react "15.6.2"
 																			:react-dom "15.6.2"
@@ -42,14 +42,14 @@
                            :preloads [devtools.preload]
                            :external-config {
                                              :devtools/config {
-                                                    :features-to-install    [:formatters :hints]}}
+																															 :features-to-install    [:formatters :hints]}}
                            }}
 
                ;; lein cljsbuild once min
                {:id "min"
                 :source-paths ["src"]
                 :compiler {:output-to "resources/public/js/compiled/client.js"
-                           :main client.core
+                           :main app.core
 													 :install-deps true
 													 :npm-deps {:react-router-dom "4.2.2"
 																			:react "15.6.2"
