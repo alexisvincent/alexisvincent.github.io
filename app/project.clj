@@ -13,6 +13,10 @@
 								 [rum "0.10.8"]
 								 [stylefy "1.2.0-beta2"]
                  [cljs-ajax "0.7.3"]
+								 [camel-snake-kebab "0.4.0"]
+								 [com.taoensso/sente "1.12.0"]
+								 [aleph "0.4.4"]
+								 [org.clojure/data.json "0.2.6"]
 								 [org.clojure/tools.reader "1.1.1"]
 								 ]
 
