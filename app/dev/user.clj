@@ -1,6 +1,15 @@
 (ns user
   (:require
-   [figwheel-sidecar.repl-api :as f]))
+   [figwheel-sidecar.repl-api :as f]
+   [clojure.spec.alpha :as s]
+   [expound.alpha :as expound]))
+
+;; If you're doing this in the user ns for your repl...
+(alter-var-root #'s/*explain-out* (constantly expound/printer))
+
+;; Otherwise, you can use the method from the README.
+;; (set! s/*explain-out* expound/printer)
+
 
 ;; user is a namespace that the Clojure runtime looks for and
 ;; loads if its available

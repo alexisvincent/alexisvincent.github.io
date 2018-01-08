@@ -125,7 +125,30 @@
      :currency :zar
      :fees '({:description :withdrawal-fee
               :amount 8.5})
-     :amount-received 224323.63}))
+     :amount-received 224323.63}
+
+    {:kind :exchange-withdrawal
+      :time 1
+      :exchange :luno
+      :currency :zar
+      :fees '({:description :withdrawal-fee
+                :amount 8.5})
+      :amount-received 231790.00}
+
+    {:kind :withdrawal
+     :time 1
+     :account :dylan
+     :amount 34240.75}
+
+    {:kind :deposit
+     :time 1
+     :account :alexis
+     :amount 1641.64}
+
+    {:kind :deposit
+     :time 1
+     :account :sharon
+     :amount 500}))
 
 (defn make-empty-ledger []
   {;:fees-outstanding 0

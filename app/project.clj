@@ -4,6 +4,7 @@
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
 
+
   :min-lein-version "2.8.1"
 
   :dependencies [[org.clojure/clojure "1.9.0"]
@@ -17,7 +18,10 @@
 								 [com.taoensso/sente "1.12.0"]
 								 [aleph "0.4.4"]
 								 [org.clojure/data.json "0.2.6"]
+								 [com.rpl/specter "1.1.0"]
+								 [org.clojure/core.async "0.3.465"]
 								 [org.clojure/tools.reader "1.1.1"]
+								 [expound "0.4.0"]
 								 ]
 
   :plugins [[lein-figwheel "0.5.14"]

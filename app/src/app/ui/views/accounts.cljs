@@ -7,6 +7,7 @@
    [app.ledger :refer [ledger]]
    [app.ui.router :refer [Route]]))
 
+
 (rum/defc accounts [{{path :path} :match :as x}]
   (let [personal-holdings (rum/defc $
                             [full-name account-key]
@@ -48,9 +49,12 @@
 
       (Route {:path (str path "/dylan")
               :component #((rum/defc $ [] (personal-holdings "Dylan Vorster" :dylan)))})
+
       (Route {:path (str path "/alexis")
               :component #((rum/defc $ [] (personal-holdings "Alexis Vincent" :alexis)))})
+
       (Route {:path (str path "/emma")
               :component #((rum/defc $ [] (personal-holdings "Emma Botha" :emma)))})
+
       (Route {:path (str path "/sharon")
               :component #((rum/defc $ [] (personal-holdings "Sharon Vincent" :sharon)))})]]))
