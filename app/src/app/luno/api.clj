@@ -154,16 +154,6 @@
 (defn discard-quote! [id]
   (request DELETE (str "quotes/" id)))
 
-(go
-  (let [[success result] (<!  (get-funding-account :XBT :address "1HXJFQqCWs5cRUMCk35sQKgAknSCENqF5Y"))]))
-
-;; (go
-;;   (let [[success {order-id :order-id}] (<! (post-order! [:XBT :ZAR] :BID  0.0005 1000))
-;;         x (<! (get-order order-id))]
-;;         ;; [success x] (<! (stop-order! order-id))]
-;;     (println success " " order-id x)))
-
-
 (def handshake-data
   (json/write-str {:api_key_id api-key-id
                    :api_key_secret api-key-secret}))
@@ -176,66 +166,31 @@
 (def log (atom '()))
 (def ledger (atom {}))
 
-(def ledger' {:asks {} :bids {} :trades '() :sequence 0})
-
-(defn append-order-to-ledger [ledger {:keys [order-id] :as order}]
-  (let []))
-
-(defn process-trade-event [ledger {:keys [] :as event}]
-
-  (println (keys ledger ) event)
-  ledger)
-
-;; (swap! ledger (constantly {:asks '() :bids '() :sequence 2}))
-
-;; (def x
-;;   (nth @log 4))
-
-;; (do
-;;   (update-ledger @ledger (assoc (nth @log 4) :sequence (inc (:sequence @ledger))))
-;;   nil)
-
-(defn process-create-event [ledger {:keys [type order-id] :as event}]
-  ;; (println type)
-  (cond
-    (nil? event)
-    ledger
-
-    (= type :ASK)
-    (transform [:asks] #(assoc % order-id event) ledger)
-
-    (= type :BID)
-    (transform [:bids] #(assoc % order-id event) ledger)
-
-    :else
-    ledger))
+(defn process-trade-event [ledger {:keys [id base] :as event}]
+  (as-> ledger $
+    (transform [(multi-path :asks :bids) (must id)  :volume] #(- % base) $)
+    (transform [(multi-path :asks :bids) (must id) (compact (if-path [:volume (pred<= 0)] STAY STOP))] NONE $)
+    (setval [:trades BEFORE-ELEM] event $)))
 
 
-(defn process-delete-event [ledger {event-id :order-id :as event}]
-  (if (nil? event)
-    ledger
-    (as-> ledger $
-      (update $ :asks dissoc event-id)
-      (update $ :bids dissoc event-id))))
+(defn process-create-event [ledger {:keys [type id] :as event}]
+  (transform [(if (= type :BID) :bids :asks)] #(assoc % id event) ledger))
 
+(defn process-delete-event [ledger {event-id :id :as event}]
+    (setval [(multi-path :asks :bids) event-id] NONE ledger))
 
 (defn ledger-from-initial-event [{:keys [asks bids sequence trades]}]
-  (println "initial" (first asks))
   (as-> {:bids {} :asks {} :trades '() :sequence sequence} $
-    ; trades must come before the others so we don't falsely update them
+                                      ; trades must come before the others so we don't falsely update them
     (reduce process-trade-event $ trades)
     (reduce process-create-event $ asks)))
 
-;; (def e)
-;; (last  log')
-;; (def log' (drop 1 log'))
-(reduce update-ledger {:asks {} :bids {} :sequence 0} ;(-> (last log') :sequence)}
-        (drop 0 (reverse log')))
-
 (defn update-ledger [ledger event]
-  ;; (println event)
   (cond
     (keyword? event)
+    ledger
+
+    (string? event)
     ledger
 
     (contains? event :asks)
@@ -246,40 +201,26 @@
     (let [{event-seq :sequence :keys [trade-updates create-update delete-update]} event]
       (as-> ledger $
         (assoc $ :sequence event-seq)
-        (reduce process-trade-event $ trade-updates)
-        (process-create-event $ create-update)
-        (process-delete-event $ delete-update)))
+
+        (if-not (nil? create-update)
+          (process-create-event $ create-update)
+          $)
+        (if-not (nil? trade-updates)
+          (reduce process-trade-event $ trade-updates)
+          $)
+        (if-not (nil? delete-update)
+          (process-delete-event $ delete-update)
+          $)))
+
 
     :else
     ledger))
 
-
-
-
-;; (swap! ledger #(update-ledger % (assoc (nth @log 4) :sequence (inc (:sequence %)))))
-;; (swap! ledger #(update-ledger % (assoc x :sequence (inc (:sequence %)))))
-;; (update-ledger @ledger ::sdf)
-;; (update-ledger @ledger x)
-
-
-;; (defn coerce-event [event]
-;;   (if-not (string? event)
-;;     event
-;;     (do
-;;       (def raw-event event)
-;;       (as-> (json/read-json event) $
-;;         (kebab-extras/transform-keys kebab/->kebab-case-keyword $)
-;;         ;; (if-let [type (-> $ :create-update :type)]
-;;         ;;   (update $ :create-update assoc :type (keyword type))
-;;         ;;   event)
-;;         (update $ :sequence (fn [x] (Integer/parseInt x)))))))
-
 (def ALL-NODES
   (comp-paths (recursive-path [] p
-															(cond-path
-															 vector? (stay-then-continue ALL p)
-															 map? (stay-then-continue MAP-VALS p)))))
-
+                              (cond-path
+                               vector? (stay-then-continue ALL p)
+                               map? (stay-then-continue MAP-VALS p)))))
 
 (defn coerce-event [event]
   (if-not (string? event)
@@ -290,16 +231,10 @@
       (transform [ALL-NODES map? (multi-path (must :price) (must :volume) (must :sequence) (must :base) (must :counter))] read-string $)
       (transform [ALL-NODES map? (multi-path (must :type) (must :id))] keyword $))))
 
-;; (transform [(srange 1 4) (filterer even?)] reverse [1 2 3 4 5 6 7 8])
-;; (coerce-event raw-event)
-
-;; (nth @log 2)
-
-;; (declare stream)
+(declare stream)
 
 (defn disconnect-stream! []
   (m/close! stream))
-
 
 (defn connect-stream! []
   (future
@@ -311,36 +246,18 @@
 
     (while (not (m/closed? stream))
       (let [event (coerce-event @(m/try-take! stream :drained 5000 :timeout))]
-        ;; (m/put! stream "keep-alive")
 
+        (swap! log  (partial cons event))
+        (swap! ledger update-ledger event)))))
 
-        (swap! log  (partial cons event))))))
-        ;; (swap! ledger update-ledger event)))))
-
-;; (post-order! [:XBT :ZAR] :BID 0.0005 1000)
-
-;; (def entry (second @log))
-;; (nth @log 2)
-
-;; (def x {:sequence 21514127
-;;         :trade-updates nil,
-;;         :create-update {:order-id "BXDED3CN5ZDG8BR",
-;;                         :type "BID",
-;;                         :price 220800.00,
-;;                         :volume 0.0452},
-;;         :delete-update nil,
-;;         :timestamp 1515319506064})
-
-;; (remove-watch log :log)
+;; (remove-watch ledger :log)
 
 ;; (add-watch ledger :log (fn [_ _ old new]
 ;;                          (println (data/diff old new))))
 
-;; (def log' @log)
+;; (go (println (<! (post-order! [:XBT :ZAR] :BID 0.005 1000))))
 
-;; log'
-
-;; (first @log)
+;; (:trades @ledger)
 
 ;; (connect-stream!)
 
