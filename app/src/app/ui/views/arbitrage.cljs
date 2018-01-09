@@ -10,7 +10,7 @@
 (rum/defc bound-input < rum/reactive [atom']
   [:input {:type "text"
            :value (rum/react atom')
-           :on-change #(reset! atom' (-> % .-target .value))}])
+           :on-change #(reset! atom' (-> % .-target .-value))}])
 
 (rum/defc connected-input [label atom' update-fn]
   [:div (ui/with-style {:padding-bottom "5px"})
