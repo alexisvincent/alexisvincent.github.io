@@ -148,7 +148,20 @@
     {:kind :deposit
      :time 1
      :account :sharon
-     :amount 500}))
+     :amount 500}
+
+    {:kind :exchange-withdrawal
+      :time 1
+      :exchange :luno
+      :currency :zar
+      :fees '({:description :withdrawal-fee
+                :amount 8.5})
+      :amount-received 213429.83}
+
+    {:kind :withdrawal
+      :time 1
+      :account :emma
+      :amount 3178.82}))
 
 (defn make-empty-ledger []
   {;:fees-outstanding 0
